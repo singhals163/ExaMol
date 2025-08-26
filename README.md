@@ -20,7 +20,7 @@ You can then build the entire environment with Anaconda:
 
 ```commandline
 cd ExaMol
-conda env create --file envs/environment-cpu.yml --force
+conda env create --file envs/environment-cpu.yml --yes
 ```
 
 The above command builds the environment for a commodity CPU. 
