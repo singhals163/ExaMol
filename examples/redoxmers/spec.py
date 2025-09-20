@@ -2,6 +2,7 @@
 from pathlib import Path
 import shutil
 import sys
+import os
 
 from parsl import Config, HighThroughputExecutor
 from proxystore.store import Store
@@ -21,10 +22,22 @@ from examol.specify import ExaMolSpecification
 num_random: int = 2  # Number of randomly-selected molecules to run
 num_total: int = 8  # Total number of molecules to run
 
-# Get my path. We'll want to provide everything as absolute paths, as they are relative to this file
-my_path = Path().absolute()
+run_dir_str = os.environ.get('EXAMOL_RUN_DIR')
+max_loops_str = os.environ.get('EXAMOL_MAX_LOOPS')
 
-# Delete the old run
+if not run_dir_str or not max_loops_str:
+    raise ValueError("Env variables EXAMOL_RUN_DIR and EXAMOL_MAX_LOOPS must be set.")
+
+my_path = Path(run_dir_str)
+if max_loops_str.lower() == 'inf':
+    max_loops = -1
+else:
+    max_loops = int(max_loops_str)
+
+# # Get my path. We'll want to provide everything as absolute paths, as they are relative to this file
+# my_path = Path().absolute()
+
+# # Delete the old run
 run_dir = my_path / 'run'
 if run_dir.is_dir():
     shutil.rmtree(run_dir)
@@ -60,7 +73,7 @@ store = Store(name='file', connector=FileConnector(store_dir=str(my_path / 'prox
 spec = ExaMolSpecification(
     database=(run_dir / 'database.json'),
     recipes=[recipe],
-    search_space=[(my_path / 'search_space.smi')],
+    search_space=[('/users/vthurime/experiment_overall_profiling/ExaMol/examples/redoxmers/search_space.smi')],
     solution=solution,
     simulator=ASESimulator(scratch_dir=(run_dir / 'tmp'), clean_after_run=False),
     thinker=SingleStepThinker,
@@ -68,4 +81,5 @@ spec = ExaMolSpecification(
     proxystore=store,
     reporters=[reporter],
     run_dir=run_dir,
+    max_loops=max_loops,
 )

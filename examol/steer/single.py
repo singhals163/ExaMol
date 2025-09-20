@@ -95,7 +95,8 @@ class SingleStepThinker(MoleculeThinker):
                  database: MoleculeStore,
                  pool: ProcessPoolExecutor,
                  num_workers: int = 2,
-                 inference_chunk_size: int = 10000):
+                 inference_chunk_size: int = 10000, 
+                 max_loops: int = -1):
         super().__init__(queues, ResourceCounter(num_workers), run_dir, recipes, solution, search_space, database, pool)
         self.search_space_dir = self.run_dir / 'search-space'
         self.scorer = solution.scorer
@@ -121,6 +122,9 @@ class SingleStepThinker(MoleculeThinker):
         # Coordination tools
         self.start_inference: Event = Event()
         self.start_training: Event = Event()
+        self.max_loops = max_loops
+        self.loop_counter = 0
+        self.inference_loop_counter = 0
 
     @property
     def num_models(self) -> int:
@@ -275,6 +279,12 @@ class SingleStepThinker(MoleculeThinker):
             if train_size < self.solution.minimum_training_size:
                 self.logger.info(f'Too few to entries to train {recipe.name}. Waiting for {self.solution.minimum_training_size}. Have {train_size}')
                 return
+        if self.max_loops != -1 and self.loop_counter >= self.max_loops:
+            self.logger.info(f'Maximum number of loops {self.max_loops} reached. Stopping training.')
+            self.start_inference.set()  # To unblock any waiting inference
+            return
+        self.loop_counter += 1
+        self.logger.info(f'Beginning training loop {self.loop_counter}')
 
         for recipe_id, recipe in enumerate(self.recipes):
             # Get the training set
@@ -386,6 +396,19 @@ class SingleStepThinker(MoleculeThinker):
     @event_responder(event_name='start_inference')
     def run_inference(self):
         """Store inference results then update the task list"""
+
+        if self.max_loops != -1 and self.inference_loop_counter >= self.max_loops:
+            self.logger.info(f'Maximum number of loops {self.max_loops} reached. Running random selection to continue simulation.')
+            search_space_size = sum(map(len, self.search_space_smiles))
+            subset = self.starter.select(list(interleave_longest(*self.search_space_smiles)), min(self.num_to_run, search_space_size))
+            self.logger.info(f'Selected {len(subset)} molecules to run')
+            with self.task_queue_lock:
+                for key in subset:
+                    self.task_queue.append((key, np.nan))  # All get the same score
+                self.task_queue_lock.notify_all()
+            return
+        self.inference_loop_counter += 1
+        
 
         # Submit the tasks and prepare the storage
         chunk_smiles, all_done, inference_results = self.submit_inference()

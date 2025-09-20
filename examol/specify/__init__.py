@@ -77,6 +77,8 @@ class ExaMolSpecification:
     """Class used to send messages between Thinker and Task Server."""
     run_dir: Path | str = ...
     """Path in which to write output files"""
+    max_loops: int = -1
+    """Maximum number of loops for the thinker to execute. Use -1 for infinite."""
 
     @contextlib.contextmanager
     def assemble(self) -> tuple[BaseTaskServer, MoleculeThinker, MoleculeStore]:
@@ -136,6 +138,7 @@ class ExaMolSpecification:
                 solution=self.solution,
                 database=store,
                 pool=pool,
+                max_loops=self.max_loops,
                 **self.thinker_options
             )
             yield doer, thinker, store
