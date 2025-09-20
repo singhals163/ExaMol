@@ -1,0 +1,106 @@
+========================================
+      ExaMol Run Analysis Summary
+========================================
+Analyzed Directory: /users/vthurime/experiment_overall_profiling/experiment_results/training_3/reading_1/run
+Report Generated On: 2025-09-20 00:12:56
+
+--- Task Count Verification ---
+Simulation  : Report.md -> 32   | JSON Lines -> 32   | Status: OK
+Train       : Report.md -> 3    | JSON Lines -> 0    | Status: MISMATCH
+Inference   : Report.md -> 3    | JSON Lines -> 3    | Status: OK
+
+=========================
+  SIMULATION TASK ANALYSIS
+=========================
+
+Total Tasks: 32
+Overall Total Duration (s): Min: 2.149, Max: 348.984, Avg: 123.493
+Overall Compute Duration (s): Min: 0.834, Max: 248.457, Avg: 50.599
+
+--- Breakdown for 'optimize_structure' ---
+Total Tasks: 18
+Total Duration (s): Min: 67.979, Max: 348.984, Avg: 177.532
+Compute Duration (s): Min: 28.457, Max: 248.457, Avg: 88.428
+
+--- Breakdown for 'compute_energy' ---
+Total Tasks: 14
+Total Duration (s): Min: 2.149, Max: 301.050, Avg: 54.014
+Compute Duration (s): Min: 0.834, Max: 3.648, Avg: 1.961
+
+--- Individual Task Log ---
+Task ID                               Method              Success  Start Time             End Time                  Total (s)   Compute (s)
+--------------------------------------------------------------------------------------------------------------------------------------------
+858aa626-2791-45b3-a29c-add7597a2291  optimize_structure  True     2025-09-19 21:26:31.0792025-09-19 21:28:12.717     101.638        85.867
+bb25fb0f-a5fc-4091-833d-8484caffd20e  optimize_structure  True     2025-09-19 21:26:31.4632025-09-19 21:29:03.651     152.188        50.884
+d0afb873-27cf-451d-a79d-5d5564a4f508  optimize_structure  True     2025-09-19 21:28:12.8492025-09-19 21:30:15.490     122.641        71.731
+37f5fa52-d6ed-4e97-a65b-63c70c5271b2  optimize_structure  True     2025-09-19 21:29:03.6612025-09-19 21:30:48.025     104.364        32.484
+fe20710e-39cb-4408-8725-71e5315b6cd7  compute_energy      True     2025-09-19 21:30:15.4982025-09-19 21:30:49.181      33.683         1.149
+db0cc18f-3f46-4507-8c9e-c1cb8d954aca  compute_energy      True     2025-09-19 21:30:48.0312025-09-19 21:30:50.646       2.615         1.448
+6e46e068-cbbe-4b10-8992-344deb39e49b  compute_energy      True     2025-09-19 21:30:49.1942025-09-19 21:30:51.500       2.306         0.834
+c5284b57-9fc6-47c4-9de2-f03c1c5219e0  compute_energy      True     2025-09-19 21:30:50.6532025-09-19 21:30:52.802       2.149         1.285
+5617668c-cdaa-47f9-b446-19bf07418679  optimize_structure  True     2025-09-19 21:30:51.5502025-09-19 21:31:59.529      67.979        66.661
+965df2ee-a990-4721-bb96-a602ef543528  optimize_structure  True     2025-09-19 21:30:52.8082025-09-19 21:32:47.248     114.440        47.689
+6fab5ec1-b676-4072-bd97-94d43927323d  optimize_structure  True     2025-09-19 21:31:59.7092025-09-19 21:34:44.982     165.273        85.792
+76a75b0b-38e9-4f26-9885-a67a3df71f21  optimize_structure  True     2025-09-19 21:32:47.2532025-09-19 21:36:00.692     193.439        75.667
+47620c7d-9156-4362-a377-09d8594db523  compute_energy      True     2025-09-19 21:34:44.9892025-09-19 21:37:42.638     177.648         1.551
+69cf2d79-7d18-4181-af07-6343fcbae656  compute_energy      True     2025-09-19 21:36:00.7012025-09-19 21:37:46.351     105.650         3.648
+c3602e61-568e-4ae5-9c19-983cb31db776  optimize_structure  True     2025-09-19 21:37:42.9912025-09-19 21:40:20.575     157.584       154.078
+2faa8832-93a2-4c7f-aca5-6cbb4039adff  optimize_structure  True     2025-09-19 21:37:46.3592025-09-19 21:41:26.659     220.300        66.055
+8b717d82-53b3-4b4a-846c-0146ff1c1fba  optimize_structure  True     2025-09-19 21:40:20.8492025-09-19 21:43:07.118     166.270        59.991
+04aa135e-d623-4f81-8bef-19240f6b0b14  optimize_structure  True     2025-09-19 21:41:26.6732025-09-19 21:47:15.658     348.984       248.457
+7e3c6ce2-454e-4066-badb-73283dcf831c  compute_energy      True     2025-09-19 21:43:07.1262025-09-19 21:48:08.176     301.050         1.378
+2a1c0c4b-450f-48cc-b132-6627d3d15c31  compute_energy      True     2025-09-19 21:47:15.6652025-09-19 21:48:09.986      54.321         1.728
+81deb01d-6488-4dd2-aae3-9f355bffb443  compute_energy      True     2025-09-19 21:48:08.1842025-09-19 21:48:12.397       4.213         2.356
+df6da2b7-ec78-46c9-8eb6-ca4198bfdfe1  compute_energy      True     2025-09-19 21:48:09.9942025-09-19 21:48:16.061       6.067         3.637
+dc268127-c685-40a8-b135-2b9d3f3ba7c1  optimize_structure  True     2025-09-19 21:48:12.9032025-09-19 21:50:28.056     135.153        39.575
+85e0b3f3-db07-4aa1-8398-f52dd8f0fb18  optimize_structure  True     2025-09-19 21:48:16.0682025-09-19 21:53:46.996     330.928       198.844
+2c901b78-b75d-483e-8bb4-e0c1daacc4e5  optimize_structure  True     2025-09-19 21:50:28.6292025-09-19 21:55:00.105     271.476        28.457
+9ea1e8b4-d5c8-4de2-a97f-e7d14afa680e  optimize_structure  True     2025-09-19 21:53:47.0042025-09-19 21:55:52.457     125.454        52.208
+f3f90aa5-cd10-42c5-82c5-8602eeada574  compute_energy      True     2025-09-19 21:55:00.1092025-09-19 21:55:55.980      55.871         3.493
+d2ba3722-9c09-4385-8761-ea44adfcabc4  compute_energy      True     2025-09-19 21:55:52.4632025-09-19 21:55:57.003       4.540         1.019
+24807c20-9230-4e13-a8b0-a2de02ce134f  compute_energy      True     2025-09-19 21:55:55.9872025-09-19 21:55:58.153       2.166         1.147
+9439a0b4-c468-48c9-8867-f3427630455e  compute_energy      True     2025-09-19 21:55:57.0112025-09-19 21:56:00.934       3.923         2.774
+c39afb6a-f3dd-4820-8829-a3ea1f81544f  optimize_structure  True     2025-09-19 21:55:58.2722025-09-19 21:59:08.323     190.050       187.296
+dd1e5526-5873-4b96-80fd-9ae9b23538fe  optimize_structure  True     2025-09-19 21:56:00.9422025-09-19 21:59:48.348     227.406        39.974
+
+=========================
+  TRAINING TASK ANALYSIS
+=========================
+
+Total Tasks: 3
+Overall Total Duration (s): Min: 98.411, Max: 260.688, Avg: 168.470
+Overall Compute Duration (s): Min: 22.158, Max: 92.321, Avg: 51.623
+
+--- Individual Task Log ---
+Task ID                               Method              Success  Start Time             End Time                  Total (s)   Compute (s)
+--------------------------------------------------------------------------------------------------------------------------------------------
+84a73b01-b676-4656-8b00-e00e5c699365  retrain             True     2025-09-19 21:30:52.8132025-09-19 21:33:19.124     146.311        22.158
+88ec3ba4-89a3-4846-8532-d19e9fb7dbce  retrain             True     2025-09-19 21:37:46.3702025-09-19 21:42:07.058     260.688        40.389
+4073745c-8e99-4c83-bcc1-31469fab41f3  retrain             True     2025-09-19 21:48:10.0142025-09-19 21:49:48.425      98.411        92.321
+
+=========================
+  INFERENCE TASK ANALYSIS
+=========================
+
+Total Tasks: 3
+Overall Total Duration (s): Min: 261.914, Max: 359.704, Avg: 301.556
+Overall Compute Duration (s): Min: 44.466, Max: 100.245, Avg: 65.253
+
+--- Individual Task Log ---
+Task ID                               Method              Success  Start Time             End Time                  Total (s)   Compute (s)
+--------------------------------------------------------------------------------------------------------------------------------------------
+ad5276f5-dea5-420e-9972-87500fde5c7a  score               True     2025-09-19 21:33:19.1282025-09-19 21:37:41.042     261.914       100.245
+a4e2117f-1c31-4805-8847-07dce392c342  score               True     2025-09-19 21:42:07.0622025-09-19 21:48:06.766     359.704        51.049
+5910dd4c-9e7b-46f9-ba56-fd410f85c708  score               True     2025-09-19 21:49:48.4342025-09-19 21:54:31.485     283.051        44.466
+
+
+===================================
+  Overall Task Performance Summary
+===================================
+
+Method                        Count   Total Compute (s)   Average Compute (s)
+------------------------------------------------------------------------------
+optimize_structure               18            1591.710                88.428
+compute_energy                   14              27.447                 1.961
+retrain                           3             154.868                51.623
+score                             3             195.760                65.253

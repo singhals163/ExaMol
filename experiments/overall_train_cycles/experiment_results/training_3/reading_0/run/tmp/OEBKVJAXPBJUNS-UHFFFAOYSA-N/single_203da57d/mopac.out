@@ -1,0 +1,389 @@
+ *******************************************************************************
+ **                                                                           **
+ **                              MOPAC v23.2                                  **
+ **                                                                           **
+ *******************************************************************************
+ **          Digital Object Identifier (DOI): 10.5281/zenodo.6511958          **
+ **    Visit the DOI location for information on how to cite this program.    **
+ *******************************************************************************
+
+                              PM7 CALCULATION RESULTS
+
+ *******************************************************************************
+ *  CALCULATION DONE: (MAX THREADS = 40)             Fri Sep 19 21:31:17 2025  *
+ *  PM7        - The PM7 Hamiltonian to be used
+ *
+ *
+ *
+ *                 CHARGE ON SYSTEM = +1
+ *
+ *
+ *
+ *  EPS=37.5   - USE ANDREAS KLAMT'S COSMO IMPLICIT SOLVATION MODEL
+ *  1SCF       - DO 1 SCF AND THEN STOP 
+ *  T=         - A TIME OF 172800.0 SECONDS REQUESTED
+ *  DUMP=N     - RESTART FILE WRITTEN EVERY 7200.0 SECONDS REQUESTED
+ *  RELSCF     - DEFAULT SCF CRITERION MULTIPLIED BY 0.0001
+ *              (DEFAULT SCF CRITERION = 0.00010)
+ *  GRADIENTS  - ALL GRADIENTS TO BE PRINTED
+ *  DISP       - PRINT DISPERSION AND HYDROGEN BOND ENERGIES
+ *******************************************************************************
+PM7 1SCF GRADIENTS EPS=37.5 DISP RELSCF=0.0001 CHARGE=1
+ Title: ASE calculation
+
+   ATOM   CHEMICAL          X               Y               Z
+  NUMBER   SYMBOL      (ANGSTROMS)     (ANGSTROMS)     (ANGSTROMS)
+
+     1       O         -2.79121903  *  -1.12203675  *  -0.42551615  *
+     2       C         -1.65649905  *  -1.50865550  *  -0.52047647  *
+     3       C         -0.54613837  *  -0.51197656  *  -0.56885282  *
+     4       C          0.75612278  *  -0.82022142  *  -0.65562186  *
+     5       C          1.82357723  *   0.22422586  *  -0.73073552  *
+     6       C          1.46757235  *   1.54390600  *  -0.00114699  *
+     7       N          0.07140144  *   1.78726682  *  -0.07489894  *
+     8       C         -1.05168459  *   1.72609660  *   0.80563389  *
+     9       C         -0.97389634  *   0.90302886  *  -0.52860533  *
+    10       H         -1.38498608  *  -2.57062843  *  -0.56779628  *
+    11       H          1.11068342  *  -1.85836014  *  -0.70602251  *
+    12       H          2.79121903  *  -0.15887113  *  -0.32228903  *
+    13       H          2.04805576  *   0.42483352  *  -1.81078903  *
+    14       H          1.82909714  *   1.54057775  *   1.06451312  *
+    15       H          2.01736563  *   2.41401894  *  -0.47867861  *
+    16       H         -0.94394749  *   1.28794738  *   1.81078903  *
+    17       H         -1.76986907  *   2.57062843  *   0.83510275  *
+    18       H         -1.67058420  *   1.20758537  *  -1.34408821  *
+
+
+
+          CARTESIAN COORDINATES 
+
+    NO.       ATOM           X           Y           Z
+
+     1         O         -2.7912     -1.1220     -0.4255
+     2         C         -1.6565     -1.5087     -0.5205
+     3         C         -0.5461     -0.5120     -0.5689
+     4         C          0.7561     -0.8202     -0.6556
+     5         C          1.8236      0.2242     -0.7307
+     6         C          1.4676      1.5439     -0.0011
+     7         N          0.0714      1.7873     -0.0749
+     8         C         -1.0517      1.7261      0.8056
+     9         C         -0.9739      0.9030     -0.5286
+    10         H         -1.3850     -2.5706     -0.5678
+    11         H          1.1107     -1.8584     -0.7060
+    12         H          2.7912     -0.1589     -0.3223
+    13         H          2.0481      0.4248     -1.8108
+    14         H          1.8291      1.5406      1.0645
+    15         H          2.0174      2.4140     -0.4787
+    16         H         -0.9439      1.2879      1.8108
+    17         H         -1.7699      2.5706      0.8351
+    18         H         -1.6706      1.2076     -1.3441
+
+ General Reference for PM7:
+ "Optimization of Parameters for Semiempirical Methods VI: More Modifications to the 
+ NDDO Approximations and Re-optimization of Parameters", J. J. P. Stewart, J. Mol. Mod., 1:32, 19 (2013)
+ https://link.springer.com/article/10.1007/s00894-012-1667-x
+
+           Empirical Formula: C7 H9 N O  =    18 atoms
+
+
+
+      MOLECULAR POINT GROUP   :   C1  
+
+
+          UHF CALCULATION, NO. OF ALPHA ELECTRONS =   24
+                           NO. OF BETA  ELECTRONS =   23
+  SCF CRITERION =    0.1000E-07
+
+ -------------------------------------------------------------------------------
+ PM7 1SCF GRADIENTS EPS=37.5 DISP RELSCF=0.0001 CHARGE=1
+ Title: ASE calculation
+
+
+
+     1SCF WAS SPECIFIED, SO BFGS WAS NOT USED                 
+     SCF FIELD WAS ACHIEVED                                   
+
+
+                              PM7 CALCULATION
+                                                       MOPAC v23.2 Linux
+                                                       Fri Sep 19 21:31:19 2025
+
+
+
+
+          FINAL HEAT OF FORMATION =        155.83803 KCAL/MOL =     652.02630 KJ/MOL
+
+          TOTAL ENERGY            =     -33551.47351 KCAL/MOL = ELECTRONIC ENERGY + CORE-CORE REPULSION + SOLVATION ENERGY
+          ENERGY OF ATOMS         =      33709.16394 KCAL/MOL
+                              SUM =        157.69043 KCAL/MOL
+          DISPERSION ENERGY       =         -1.85240 KCAL/MOL
+                              SUM =        155.83803 KCAL/MOL = FINAL HEAT OF FORMATION
+
+          VAN DER WAALS AREA      =        159.10 SQUARE ANGSTROMS
+
+
+          TOTAL ENERGY            =      -1454.92959 EV
+          ELECTRONIC ENERGY       =      -2150.46956 EV 
+          CORE-CORE REPULSION     =        695.53997 EV
+
+          DIELECTRIC ENERGY       =         -2.65825 EV
+          COSMO AREA              =        159.10 SQUARE ANGSTROMS
+          COSMO VOLUME            =        157.50 CUBIC ANGSTROMS
+
+          GRADIENT NORM           =         37.34157          =       8.80149 PER ATOM
+          IONIZATION POTENTIAL    =         10.880048 EV
+          ALPHA SOMO LUMO (EV)    =        -10.880 -0.979
+          BETA  SOMO LUMO (EV)    =        -10.935 -2.777
+          NO. OF ALPHA ELECTRONS  =         24
+          NO. OF BETA  ELECTRONS  =         23
+          MOLECULAR WEIGHT        =        123.1542         POINT GROUP:  C1  
+
+          MOLECULAR DIMENSIONS (Angstroms)
+
+            Atom       Atom       Distance
+            H    15    H    10     6.03578
+            H    17    H    12     5.43170
+            H    18    H    16     3.19334
+
+
+          SCF CALCULATIONS        =          2
+
+          WALL-CLOCK TIME         =      1.727 SECONDS
+          COMPUTATION TIME        =      0.431 SECONDS
+
+          LARGEST ATOMIC GRADIENTS
+
+          Atom     Label                     Cartesian Gradients           Cartesian Coordinates       |Gradient|
+                                           X          Y          Z        X          Y          Z
+
+             2       C                 -27.556     -6.233      1.053   -1.65650   -1.50866   -0.52048     28.272
+             1       O                  15.989     -0.958     -0.660   -2.79122   -1.12204   -0.42552     16.032
+             3       C                  13.775      3.837     -0.712   -0.54614   -0.51198   -0.56885     14.317
+             6       C                   3.812      2.882      3.574    1.46757    1.54391   -0.00115      5.968
+             4       C                  -5.197      0.252      0.749    0.75612   -0.82022   -0.65562      5.257
+             8       C                  -0.695      1.852      4.356   -1.05168    1.72610    0.80563      4.784
+             5       C                   2.972      0.505     -1.551    1.82358    0.22423   -0.73074      3.391
+             7       N                  -1.147      1.197     -2.448    0.07140    1.78727   -0.07490      2.956
+             9       C                  -0.011     -0.595     -2.675   -0.97390    0.90303   -0.52861      2.740
+            18       H                  -2.194     -1.318     -0.497   -1.67058    1.20759   -1.34409      2.607
+
+
+
+       FINAL  POINT  AND  DERIVATIVES
+
+   PARAMETER     ATOM    TYPE            VALUE        GRADIENT
+      1          1  O    CARTESIAN X    -2.791219     15.989496  KCAL/ANGSTROM
+      2          1  O    CARTESIAN Y    -1.122037     -0.958335  KCAL/ANGSTROM
+      3          1  O    CARTESIAN Z    -0.425516     -0.659700  KCAL/ANGSTROM
+      4          2  C    CARTESIAN X    -1.656499    -27.556047  KCAL/ANGSTROM
+      5          2  C    CARTESIAN Y    -1.508656     -6.233104  KCAL/ANGSTROM
+      6          2  C    CARTESIAN Z    -0.520476      1.052661  KCAL/ANGSTROM
+      7          3  C    CARTESIAN X    -0.546138     13.774975  KCAL/ANGSTROM
+      8          3  C    CARTESIAN Y    -0.511977      3.836556  KCAL/ANGSTROM
+      9          3  C    CARTESIAN Z    -0.568853     -0.712288  KCAL/ANGSTROM
+     10          4  C    CARTESIAN X     0.756123     -5.196834  KCAL/ANGSTROM
+     11          4  C    CARTESIAN Y    -0.820221      0.252178  KCAL/ANGSTROM
+     12          4  C    CARTESIAN Z    -0.655622      0.748537  KCAL/ANGSTROM
+     13          5  C    CARTESIAN X     1.823577      2.972486  KCAL/ANGSTROM
+     14          5  C    CARTESIAN Y     0.224226      0.505291  KCAL/ANGSTROM
+     15          5  C    CARTESIAN Z    -0.730736     -1.551115  KCAL/ANGSTROM
+     16          6  C    CARTESIAN X     1.467572      3.812302  KCAL/ANGSTROM
+     17          6  C    CARTESIAN Y     1.543906      2.881685  KCAL/ANGSTROM
+     18          6  C    CARTESIAN Z    -0.001147      3.574327  KCAL/ANGSTROM
+     19          7  N    CARTESIAN X     0.071401     -1.146641  KCAL/ANGSTROM
+     20          7  N    CARTESIAN Y     1.787267      1.196597  KCAL/ANGSTROM
+     21          7  N    CARTESIAN Z    -0.074899     -2.447895  KCAL/ANGSTROM
+     22          8  C    CARTESIAN X    -1.051685     -0.695288  KCAL/ANGSTROM
+     23          8  C    CARTESIAN Y     1.726097      1.851633  KCAL/ANGSTROM
+     24          8  C    CARTESIAN Z     0.805634      4.355655  KCAL/ANGSTROM
+     25          9  C    CARTESIAN X    -0.973896     -0.011425  KCAL/ANGSTROM
+     26          9  C    CARTESIAN Y     0.903029     -0.595039  KCAL/ANGSTROM
+     27          9  C    CARTESIAN Z    -0.528605     -2.674691  KCAL/ANGSTROM
+     28         10  H    CARTESIAN X    -1.384986      1.907638  KCAL/ANGSTROM
+     29         10  H    CARTESIAN Y    -2.570628      1.262607  KCAL/ANGSTROM
+     30         10  H    CARTESIAN Z    -0.567796      0.031640  KCAL/ANGSTROM
+     31         11  H    CARTESIAN X     1.110683      0.015838  KCAL/ANGSTROM
+     32         11  H    CARTESIAN Y    -1.858360      0.339297  KCAL/ANGSTROM
+     33         11  H    CARTESIAN Z    -0.706023      0.279395  KCAL/ANGSTROM
+     34         12  H    CARTESIAN X     2.791219      0.591916  KCAL/ANGSTROM
+     35         12  H    CARTESIAN Y    -0.158871     -0.671798  KCAL/ANGSTROM
+     36         12  H    CARTESIAN Z    -0.322289      0.015354  KCAL/ANGSTROM
+     37         13  H    CARTESIAN X     2.048056     -0.071331  KCAL/ANGSTROM
+     38         13  H    CARTESIAN Y     0.424834      0.000551  KCAL/ANGSTROM
+     39         13  H    CARTESIAN Z    -1.810789     -0.545449  KCAL/ANGSTROM
+     40         14  H    CARTESIAN X     1.829097      0.343764  KCAL/ANGSTROM
+     41         14  H    CARTESIAN Y     1.540578     -1.237176  KCAL/ANGSTROM
+     42         14  H    CARTESIAN Z     1.064513     -0.277765  KCAL/ANGSTROM
+     43         15  H    CARTESIAN X     2.017366     -0.086680  KCAL/ANGSTROM
+     44         15  H    CARTESIAN Y     2.414019     -0.368673  KCAL/ANGSTROM
+     45         15  H    CARTESIAN Z    -0.478679     -0.734557  KCAL/ANGSTROM
+     46         16  H    CARTESIAN X    -0.943947     -1.087430  KCAL/ANGSTROM
+     47         16  H    CARTESIAN Y     1.287947     -0.641792  KCAL/ANGSTROM
+     48         16  H    CARTESIAN Z     1.810789     -0.100632  KCAL/ANGSTROM
+     49         17  H    CARTESIAN X    -1.769869     -1.362541  KCAL/ANGSTROM
+     50         17  H    CARTESIAN Y     2.570628     -0.102886  KCAL/ANGSTROM
+     51         17  H    CARTESIAN Z     0.835103      0.143436  KCAL/ANGSTROM
+     52         18  H    CARTESIAN X    -1.670584     -2.194198  KCAL/ANGSTROM
+     53         18  H    CARTESIAN Y     1.207585     -1.317592  KCAL/ANGSTROM
+     54         18  H    CARTESIAN Z    -1.344088     -0.496918  KCAL/ANGSTROM
+
+
+
+
+   ATOM   CHEMICAL          X               Y               Z
+  NUMBER   SYMBOL      (ANGSTROMS)     (ANGSTROMS)     (ANGSTROMS)
+
+     1       O         -2.79121903  *  -1.12203675  *  -0.42551615  *
+     2       C         -1.65649905  *  -1.50865550  *  -0.52047647  *
+     3       C         -0.54613837  *  -0.51197656  *  -0.56885282  *
+     4       C          0.75612278  *  -0.82022142  *  -0.65562186  *
+     5       C          1.82357723  *   0.22422586  *  -0.73073552  *
+     6       C          1.46757235  *   1.54390600  *  -0.00114699  *
+     7       N          0.07140144  *   1.78726682  *  -0.07489894  *
+     8       C         -1.05168459  *   1.72609660  *   0.80563389  *
+     9       C         -0.97389634  *   0.90302886  *  -0.52860533  *
+    10       H         -1.38498608  *  -2.57062843  *  -0.56779628  *
+    11       H          1.11068342  *  -1.85836014  *  -0.70602251  *
+    12       H          2.79121903  *  -0.15887113  *  -0.32228903  *
+    13       H          2.04805576  *   0.42483352  *  -1.81078903  *
+    14       H          1.82909714  *   1.54057775  *   1.06451312  *
+    15       H          2.01736563  *   2.41401894  *  -0.47867861  *
+    16       H         -0.94394749  *   1.28794738  *   1.81078903  *
+    17       H         -1.76986907  *   2.57062843  *   0.83510275  *
+    18       H         -1.67058420  *   1.20758537  *  -1.34408821  *
+
+                             CARTESIAN COORDINATES
+
+   1    O       -2.791219032    -1.122036754    -0.425516145
+   2    C       -1.656499055    -1.508655501    -0.520476471
+   3    C       -0.546138369    -0.511976561    -0.568852819
+   4    C        0.756122780    -0.820221419    -0.655621861
+   5    C        1.823577226     0.224225865    -0.730735522
+   6    C        1.467572346     1.543906001    -0.001146994
+   7    N        0.071401443     1.787266817    -0.074898939
+   8    C       -1.051684593     1.726096595     0.805633890
+   9    C       -0.973896339     0.903028855    -0.528605327
+  10    H       -1.384986079    -2.570628425    -0.567796278
+  11    H        1.110683425    -1.858360143    -0.706022506
+  12    H        2.791219032    -0.158871131    -0.322289034
+  13    H        2.048055762     0.424833519    -1.810789030
+  14    H        1.829097141     1.540577750     1.064513118
+  15    H        2.017365633     2.414018936    -0.478678611
+  16    H       -0.943947490     1.287947379     1.810789030
+  17    H       -1.769869067     2.570628425     0.835102750
+  18    H       -1.670584198     1.207585368    -1.344088213
+
+
+           Empirical Formula: C7 H9 N O  =    18 atoms
+
+
+
+      MOLECULAR POINT GROUP   :   C1  
+
+
+          ALPHA EIGENVALUES  
+ -39.65716 -31.74364 -29.81183 -28.71585 -25.22785 -23.51550 -23.24840 -21.51373
+ -19.22011 -18.46482 -18.03521 -17.42606 -16.12238 -15.79099 -15.53621 -15.09115
+ -14.63527 -14.15957 -13.70831 -13.53315 -13.18507 -11.85434 -11.04907 -10.88005
+  -0.97874  -0.02879   0.43681   1.01631   1.88084   2.45892   2.69413   2.81979
+   3.33766   3.58428   4.09231   4.18215   4.34759   4.50111   4.68706   4.77705
+   4.79847   4.89245   5.01164   5.14897   5.61082
+
+
+           BETA EIGENVALUES 
+ -38.40572 -31.73379 -29.72338 -28.46556 -25.04340 -23.35417 -23.01253 -21.29210
+ -18.71139 -18.11153 -17.85996 -17.21979 -15.85614 -15.59916 -15.40324 -14.98038
+ -14.40342 -14.04250 -13.41157 -13.29352 -12.98226 -11.03502 -10.93489  -2.77687
+  -0.96697   0.56852   0.57578   1.17350   1.97341   2.50315   2.84748   2.95532
+   3.53951   3.79801   4.10342   4.28596   4.46329   4.54364   4.72762   4.83469
+   4.84435   4.96717   5.01796   5.15988   5.61469
+
+
+              NET ATOMIC CHARGES AND DIPOLE CONTRIBUTIONS
+
+  ATOM NO.   TYPE          CHARGE      No. of ELECS.   s-Pop       p-Pop       
+    1          O          -0.530222        6.5302     1.87064     4.65958
+    2          C           0.440089        3.5599     1.14086     2.41905
+    3          C          -0.290808        4.2908     1.08033     3.21048
+    4          C           0.030759        3.9692     1.11390     2.85534
+    5          C          -0.324934        4.3249     1.06735     3.25759
+    6          C          -0.141221        4.1412     1.08362     3.05760
+    7          N           0.010182        4.9898     1.58017     3.40964
+    8          C          -0.159803        4.1598     1.10798     3.05182
+    9          C          -0.001731        4.0017     1.09158     2.91015
+   10          H           0.161341        0.8387     0.83866
+   11          H           0.194523        0.8055     0.80548
+   12          H           0.207944        0.7921     0.79206
+   13          H           0.211222        0.7888     0.78878
+   14          H           0.223690        0.7763     0.77631
+   15          H           0.247476        0.7525     0.75252
+   16          H           0.229475        0.7705     0.77053
+   17          H           0.243824        0.7562     0.75618
+   18          H           0.248192        0.7518     0.75181
+ DIPOLE           X         Y         Z       TOTAL
+ POINT-CHG.     7.177     3.362     1.289     8.029
+ HYBRID         0.056     0.668     0.027     0.671
+ SUM            7.232     4.030     1.316     8.383
+
+
+          ATOMIC ORBITAL ELECTRON POPULATIONS
+
+     Atom    s        px        py        pz   
+    1  O   1.87064   1.35915   1.86722   1.43320
+    2  C   1.14086   0.81585   0.98517   0.61803
+    3  C   1.08033   1.02891   0.99376   1.18780
+    4  C   1.11390   0.97071   1.08753   0.79709
+    5  C   1.06735   1.10441   0.98083   1.17235
+    6  C   1.08362   0.80046   1.07548   1.18166
+    7  N   1.58017   1.08657   1.12145   1.20162
+    8  C   1.10798   0.92282   1.09118   1.03783
+    9  C   1.09158   0.94786   0.92423   1.03806
+   10  H   0.83866
+   11  H   0.80548
+   12  H   0.79206
+   13  H   0.78878
+   14  H   0.77631
+   15  H   0.75252
+   16  H   0.77053
+   17  H   0.75618
+   18  H   0.75181
+
+
+                    (SZ)    =    0.500000
+                    (S**2)  =    0.757990
+
+
+          ATOMIC ORBITAL SPIN POPULATIONS
+
+    Atom   Total    s     px     py     pz   
+         Atomic
+    1  O  0.0002  0.000 -0.000  0.001 -0.000
+    2  C  0.0022  0.000  0.001  0.001  0.000
+    3  C  0.0175  0.002  0.000  0.016  0.000
+    4  C -0.0001 -0.001 -0.001 -0.001  0.002
+    5  C  0.0240  0.002  0.003  0.017  0.002
+    6  C -0.0148 -0.005 -0.030  0.014  0.006
+    7  N  0.8338  0.062  0.036  0.517  0.219
+    8  C  0.0189 -0.005 -0.024  0.053 -0.006
+    9  C -0.0055 -0.005 -0.024 -0.001  0.025
+   10  H  0.0014  0.001
+   11  H  0.0008  0.001
+   12  H  0.0009  0.001
+   13  H -0.0010 -0.001
+   14  H  0.0246  0.025
+   15  H  0.0418  0.042
+   16  H  0.0182  0.018
+   17  H  0.0206  0.021
+   18  H  0.0163  0.016
+
+ **********************
+ *                    *
+ * JOB ENDED NORMALLY *
+ *                    *
+ **********************
+
+
+
+ TOTAL JOB TIME:             2.32 SECONDS
+
+ == MOPAC DONE ==
