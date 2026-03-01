@@ -2,6 +2,8 @@
 import json
 import os
 import re
+import time
+import fcntl
 from hashlib import sha512
 from pathlib import Path
 from shutil import rmtree
@@ -16,6 +18,7 @@ from ase.optimize import BFGS, FIRE
 from ase.io.ulm import InvalidULMFileError
 from ase.calculators.gaussian import Gaussian, GaussianOptimizer
 
+from examol import SimpleProfiler
 import examol.utils.conversions
 from . import utils
 from .utils import add_vacuum_buffer
@@ -251,117 +254,130 @@ METHOD ANDREUSSI
 
     def optimize_structure(self, mol_key: str, xyz: str, config_name: str, charge: int = 0, solvent: str | None = None, **kwargs) \
             -> tuple[SimResult, list[SimResult], str | None]:
-        fmax_conv = 0.02  # Convergence threshold in eV/Ang
-        start_time = perf_counter()  # Measure when we started
+        
+        # Initialize profiler (log path ensures it drops into the working directory tree)
+        prof_log_base = self.scratch_dir.parent 
+        prof = SimpleProfiler(name=f"optimize_structure_{config_name}", log_file=prof_log_base)
 
-        # Make the configuration
-        calc_cfg = self.create_configuration(config_name, xyz, charge, solvent)
+        with prof("total_optimization_time"):
+            fmax_conv = 0.02  # Convergence threshold in eV/Ang
+            start_time = perf_counter()  # Measure when we started
 
-        # Parse the XYZ file into atoms
-        atoms = examol.utils.conversions.read_from_string(xyz, 'xyz')
+            with prof("setup_and_config"):
+                # Make the configuration
+                calc_cfg = self.create_configuration(config_name, xyz, charge, solvent)
 
-        # Make the run directory based on a hash of the input configuration
-        run_path = self._make_run_directory('opt', mol_key, xyz, charge, config_name, solvent)
+                # Parse the XYZ file into atoms
+                atoms = examol.utils.conversions.read_from_string(xyz, 'xyz')
 
-        # Run inside a temporary directory
-        old_path = Path.cwd()
-        succeeded = False
-        try:
-            os.chdir(run_path)
-            with utils.make_ephemeral_calculator(calc_cfg) as calc:
-                # Get the last atoms from a previous run
-                traj_path = Path('opt.traj')
-                if traj_path.is_file():
-                    try:
-                        # Overwrite our atoms with th last in the trajectory
-                        with Trajectory(traj_path, mode='r') as traj:
-                            atoms = traj[-1]
-                    except InvalidULMFileError:
-                        traj_path.unlink()
-                        pass
+                # Make the run directory based on a hash of the input configuration
+                run_path = self._make_run_directory('opt', mol_key, xyz, charge, config_name, solvent)
 
-                # Prepare the structure for a specific code
-                if 'cp2k' in config_name:
-                    calc_cfg['buffer_size'] *= 2  # In case the molecule expands
-                self._prepare_atoms(atoms, charge, calc_cfg)
+            # Run inside a temporary directory
+            old_path = Path.cwd()
+            succeeded = False
+            try:
+                os.chdir(run_path)
+                with utils.make_ephemeral_calculator(calc_cfg) as calc:
+                    
+                    with prof("trajectory_io_read"):
+                        # Get the last atoms from a previous run
+                        traj_path = Path('opt.traj')
+                        if traj_path.is_file():
+                            try:
+                                # Overwrite our atoms with th last in the trajectory
+                                with Trajectory(traj_path, mode='r') as traj:
+                                    atoms = traj[-1]
+                            except InvalidULMFileError:
+                                traj_path.unlink()
+                                pass
 
-                # Special case: use Gaussian's optimizer
-                if isinstance(calc, Gaussian) and calc_cfg['use_gaussian_opt']:
-                    # Start the optimization
-                    dyn = GaussianOptimizer(atoms, calc)
-                    dyn.run(fmax='tight', steps=self.optimization_steps, opt='calcfc')
-
-                    # Read the energies from the output file
-                    traj = read('Gaussian.log', index=':')
-                    out_traj = []
-                    for atoms in traj:
-                        out_strc = examol.utils.conversions.write_to_string(atoms, 'xyz')
-                        out_traj.append(SimResult(config_name=config_name, charge=charge, solvent=solvent,
-                                                  xyz=out_strc, energy=atoms.get_potential_energy(),
-                                                  forces=atoms.get_forces()))
-                    out_result = out_traj.pop(-1)
-                    return out_result, out_traj, json.dumps({'runtime': perf_counter() - start_time})
-
-                # Attach the calculator
-                atoms.calc = calc
-
-                # Continue to append to the same trajectory from previous runs
-                with Trajectory(str(traj_path), mode='a', atoms=atoms) as traj:
-                    # Start with a MDMin optimization to very thin convergence threshold
-                    dyn = FIRE(atoms, logfile='opt.log', trajectory=traj)
-                    dyn.run(fmax=0.7, steps=self.optimization_steps)  # TODO (wardlt) make the fmax configurable
-
-                    # If CP2K, re-expand the simulation cell in chase molecule has expanded
-                    if 'cp2k' in config_name:
+                        # Prepare the structure for a specific code
+                        if 'cp2k' in config_name:
+                            calc_cfg['buffer_size'] *= 2  # In case the molecule expands
                         self._prepare_atoms(atoms, charge, calc_cfg)
 
-                    # Make the optimizer
-                    dyn = BFGS(atoms, logfile='opt.log', trajectory=traj)
+                    # Special case: use Gaussian's optimizer
+                    if isinstance(calc, Gaussian) and calc_cfg['use_gaussian_opt']:
+                        with prof("compute_optimization"):
+                            # Start the optimization
+                            dyn = GaussianOptimizer(atoms, calc)
+                            dyn.run(fmax='tight', steps=self.optimization_steps, opt='calcfc')
 
-                    # Run an optimization
-                    dyn.run(fmax=fmax_conv, steps=self.optimization_steps)
-                max_force = np.max(atoms.get_forces())
-                if max_force > fmax_conv:
-                    raise ValueError(f'Convergence failed after {self.optimization_steps}. fmax={fmax_conv:.3f}')
+                        with prof("io_data_saving"):
+                            # Read the energies from the output file
+                            traj = read('Gaussian.log', index=':')
+                            out_traj = []
+                            for atoms in traj:
+                                out_strc = examol.utils.conversions.write_to_string(atoms, 'xyz')
+                                out_traj.append(SimResult(config_name=config_name, charge=charge, solvent=solvent,
+                                                          xyz=out_strc, energy=atoms.get_potential_energy(),
+                                                          forces=atoms.get_forces()))
+                            out_result = out_traj.pop(-1)
+                            return out_result, out_traj, json.dumps({'runtime': perf_counter() - start_time})
 
-                # Get the trajectory
-                with Trajectory(str(traj_path), mode='r') as traj:
-                    # Get all atoms in the trajectory
-                    traj_lst = [a for a in traj]
+                    # Attach the calculator
+                    atoms.calc = calc
 
-            # Store atoms in the database
-            if self.ase_db_path is not None:
-                self.update_database([atoms], config_name, charge, solvent)
-                self.update_database(traj_lst, config_name, charge, solvent)
+                    with prof("compute_optimization"):
+                        # Continue to append to the same trajectory from previous runs
+                        with Trajectory(str(traj_path), mode='a', atoms=atoms) as traj:
+                            # Start with a MDMin optimization to very thin convergence threshold
+                            dyn = FIRE(atoms, logfile='opt.log', trajectory=traj)
+                            dyn.run(fmax=0.7, steps=self.optimization_steps)  # TODO (wardlt) make the fmax configurable
 
-            # Convert to the output format
-            out_traj = []
-            out_strc = examol.utils.conversions.write_to_string(atoms, 'xyz')
-            out_result = SimResult(config_name=config_name, charge=charge, solvent=solvent,
-                                   xyz=out_strc, energy=atoms.get_potential_energy(), forces=atoms.get_forces())
-            for atoms in traj_lst:
-                traj_xyz = examol.utils.conversions.write_to_string(atoms, 'xyz')
-                traj_res = SimResult(config_name=config_name, charge=charge, solvent=solvent,
-                                     xyz=traj_xyz, energy=atoms.get_potential_energy(), forces=atoms.get_forces())
-                out_traj.append(traj_res)
+                            # If CP2K, re-expand the simulation cell in chase molecule has expanded
+                            if 'cp2k' in config_name:
+                                self._prepare_atoms(atoms, charge, calc_cfg)
 
-            # Read in the output log
-            out_path = Path('opt.log')
-            out_log = out_path.read_text() if out_path.is_file() else None
+                            # Make the optimizer
+                            dyn = BFGS(atoms, logfile='opt.log', trajectory=traj)
 
-            # Mark that we finished successfully
-            succeeded = True
+                            # Run an optimization
+                            dyn.run(fmax=fmax_conv, steps=self.optimization_steps)
+                        max_force = np.max(atoms.get_forces())
+                        if max_force > fmax_conv:
+                            raise ValueError(f'Convergence failed after {self.optimization_steps}. fmax={fmax_conv:.3f}')
 
-            return out_result, out_traj, json.dumps({'runtime': perf_counter() - start_time, 'out_log': out_log})
+                    with prof("io_data_saving"):
+                        # Get the trajectory
+                        with Trajectory(str(traj_path), mode='r') as traj:
+                            # Get all atoms in the trajectory
+                            traj_lst = [a for a in traj]
 
-        finally:
-            # Delete the run directory
-            if (succeeded and self.clean_after_run) or (not succeeded and not self.retain_failed):
+                        # Store atoms in the database
+                        if self.ase_db_path is not None:
+                            self.update_database([atoms], config_name, charge, solvent)
+                            self.update_database(traj_lst, config_name, charge, solvent)
+
+                        # Convert to the output format
+                        out_traj = []
+                        out_strc = examol.utils.conversions.write_to_string(atoms, 'xyz')
+                        out_result = SimResult(config_name=config_name, charge=charge, solvent=solvent,
+                                               xyz=out_strc, energy=atoms.get_potential_energy(), forces=atoms.get_forces())
+                        for atoms in traj_lst:
+                            traj_xyz = examol.utils.conversions.write_to_string(atoms, 'xyz')
+                            traj_res = SimResult(config_name=config_name, charge=charge, solvent=solvent,
+                                                 xyz=traj_xyz, energy=atoms.get_potential_energy(), forces=atoms.get_forces())
+                            out_traj.append(traj_res)
+
+                        # Read in the output log
+                        out_path = Path('opt.log')
+                        out_log = out_path.read_text() if out_path.is_file() else None
+
+                        # Mark that we finished successfully
+                        succeeded = True
+
+                        return out_result, out_traj, json.dumps({'runtime': perf_counter() - start_time, 'out_log': out_log})
+
+            finally:
+                # Delete the run directory
+                if (succeeded and self.clean_after_run) or (not succeeded and not self.retain_failed):
+                    os.chdir(old_path)
+                    rmtree(run_path)
+
+                # Make sure we end back where we started
                 os.chdir(old_path)
-                rmtree(run_path)
-
-            # Make sure we end back where we started
-            os.chdir(old_path)
 
     def _prepare_atoms(self, atoms: ase.Atoms, charge: int, config: dict):
         """Make the atoms object ready for the simulation
@@ -378,56 +394,65 @@ METHOD ANDREUSSI
 
     def compute_energy(self, mol_key: str, xyz: str, config_name: str, charge: int = 0, solvent: str | None = None, forces: bool = True,
                        **kwargs) -> tuple[SimResult, str | None]:
-        # Make the configuration
-        start_time = perf_counter()  # Measure when we started
+        
+        # Initialize profiler
+        prof_log_base = self.scratch_dir.parent
+        prof = SimpleProfiler(name=f"compute_energy_{config_name}", log_file=prof_log_base)
 
-        # Make the configuration
-        calc_cfg = self.create_configuration(config_name, xyz, charge, solvent)
+        with prof("total_compute_energy_time"):
+            start_time = perf_counter()  # Measure when we started
 
-        # Make the run directory based on a hash of the input configuration
-        run_path = self._make_run_directory('single', mol_key, xyz, charge, config_name, solvent)
+            with prof("setup_and_config"):
+                # Make the configuration
+                calc_cfg = self.create_configuration(config_name, xyz, charge, solvent)
 
-        # Parse the XYZ file into atoms
-        atoms = examol.utils.conversions.read_from_string(xyz, 'xyz')
+                # Make the run directory based on a hash of the input configuration
+                run_path = self._make_run_directory('single', mol_key, xyz, charge, config_name, solvent)
 
-        # Run inside a temporary directory
-        old_path = Path.cwd()
-        succeeded = False
-        try:
-            os.chdir(run_path)
+                # Parse the XYZ file into atoms
+                atoms = examol.utils.conversions.read_from_string(xyz, 'xyz')
 
-            # Prepare to run the cell
-            with utils.make_ephemeral_calculator(calc_cfg) as calc:
-                # Make any changes to cell needed by the calculator
-                self._prepare_atoms(atoms, charge, calc_cfg)
+            # Run inside a temporary directory
+            old_path = Path.cwd()
+            succeeded = False
+            try:
+                os.chdir(run_path)
 
-                # Run a single point
-                atoms.calc = calc
-                forces = atoms.get_forces() if forces else None
-                energy = atoms.get_potential_energy()
+                # Prepare to run the cell
+                with utils.make_ephemeral_calculator(calc_cfg) as calc:
+                    
+                    self._prepare_atoms(atoms, charge, calc_cfg)
 
-                # If CP2K, make sure it converged
-                if config_name.startswith('cp2k'):
-                    cp2k_output = (run_path / 'cp2k.out')
-                    assert cp2k_output.is_file(), f'Cannot find output at: {cp2k_output.absolute()}'
-                    if ':: SCF run NOT converged ***' in cp2k_output.read_text():  # pragma: no-coverage
-                        raise ValueError('CP2K computation did not converge')
+                    # Run a single point
+                    atoms.calc = calc
+                    
+                    with prof("compute_energy_eval"):
+                        forces = atoms.get_forces() if forces else None
+                        energy = atoms.get_potential_energy()
 
-                # Report the results
-                if self.ase_db_path is not None:
-                    self.update_database([atoms], config_name, charge, solvent)
-                out_strc = examol.utils.conversions.write_to_string(atoms, 'xyz')
-                out_result = SimResult(config_name=config_name, charge=charge, solvent=solvent,
-                                       xyz=out_strc, energy=energy, forces=forces)
-                succeeded = True  # So tht we know whether to delete output directory
-                return out_result, json.dumps({'runtime': perf_counter() - start_time})
+                        # If CP2K, make sure it converged
+                        if config_name.startswith('cp2k'):
+                            cp2k_output = (run_path / 'cp2k.out')
+                            assert cp2k_output.is_file(), f'Cannot find output at: {cp2k_output.absolute()}'
+                            if ':: SCF run NOT converged ***' in cp2k_output.read_text():  # pragma: no-coverage
+                                raise ValueError('CP2K computation did not converge')
 
-        finally:
-            if (succeeded and self.clean_after_run) or (not succeeded and not self.retain_failed):
+                    with prof("io_data_saving"):
+                        # Report the results
+                        if self.ase_db_path is not None:
+                            self.update_database([atoms], config_name, charge, solvent)
+                        out_strc = examol.utils.conversions.write_to_string(atoms, 'xyz')
+                        out_result = SimResult(config_name=config_name, charge=charge, solvent=solvent,
+                                               xyz=out_strc, energy=energy, forces=forces)
+                        succeeded = True  # So tht we know whether to delete output directory
+                        return out_result, json.dumps({'runtime': perf_counter() - start_time})
+
+            finally:
+                if (succeeded and self.clean_after_run) or (not succeeded and not self.retain_failed):
+                    os.chdir(old_path)
+                    rmtree(run_path)
+
                 os.chdir(old_path)
-                rmtree(run_path)
-
-            os.chdir(old_path)
 
     def update_database(self, atoms_to_write: list[ase.Atoms], config_name: str, charge: int, solvent: str | None):
         """Update the ASE database collected along with this class

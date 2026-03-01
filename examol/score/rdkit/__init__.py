@@ -2,6 +2,7 @@
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from functools import partial
+from pathlib import Path
 from typing import Callable, Union
 
 import numpy as np
@@ -14,6 +15,7 @@ from sklearn.gaussian_process import kernels
 from sklearn.pipeline import Pipeline
 from sklearn.decomposition import PCA
 
+from examol import SimpleProfiler
 from examol.score.base import MultiFidelityScorer
 from examol.score.utils.multifi import compute_deltas
 from examol.score.rdkit.descriptors import compute_morgan_fingerprints, compute_doan_2020_fingerprints
@@ -85,8 +87,9 @@ class RDKitScorer(MultiFidelityScorer):
     the deltas in place of the predictions from the machine learning models.
     """
 
-    def __init__(self, pre_transform: FingerprintTransformer | None = None):
+    def __init__(self, pre_transform: FingerprintTransformer | None = None, run_dir: Path | str = None):
         self.pre_transform = pre_transform
+        self.run_dir = Path(run_dir) if run_dir is not None else None
 
     def transform_inputs(self, record_batch: list[MoleculeRecord]) -> InputType:
         smiles = [x.identifier.smiles for x in record_batch]
@@ -104,59 +107,78 @@ class RDKitScorer(MultiFidelityScorer):
             return model
 
     def score(self, model_msg: ModelType, input_data: InputType, lower_fidelities: np.ndarray | None = None, **kwargs) -> np.ndarray:
-        if not isinstance(model_msg, list):
-            # Single objective
-            return model_msg.predict(input_data)
-        elif len(model_msg) == 1:
-            return np.squeeze(model_msg[0].predict(input_data))
-        else:
-            # Get the known deltas then append a NaN to the end (we don't know the last delta)
-            if lower_fidelities is None:
-                deltas = np.empty((len(input_data), len(model_msg))) * np.nan
+        
+        prof_log_base = self.run_dir
+        prof = SimpleProfiler(name="inference_score", log_file=prof_log_base)
+
+        with prof("total_score_time"):
+            if not isinstance(model_msg, list):
+                # Single objective
+                with prof("model_predict"):
+                    return model_msg.predict(input_data)
+            elif len(model_msg) == 1:
+                with prof("model_predict"):
+                    return np.squeeze(model_msg[0].predict(input_data))
             else:
-                known_deltas = compute_deltas(lower_fidelities)
-                deltas = np.concatenate((known_deltas, np.empty_like(known_deltas[:, :1]) * np.nan), axis=1)
+                with prof("prep_deltas"):
+                    # Get the known deltas then append a NaN to the end (we don't know the last delta)
+                    if lower_fidelities is None:
+                        deltas = np.empty((len(input_data), len(model_msg))) * np.nan
+                    else:
+                        known_deltas = compute_deltas(lower_fidelities)
+                        deltas = np.concatenate((known_deltas, np.empty_like(known_deltas[:, :1]) * np.nan), axis=1)
 
-            # Run the model at each level
-            for my_level, my_model in enumerate(model_msg):
-                my_preds = my_model.predict(input_data)
-                is_unknown = np.isnan(deltas[:, my_level])
-                deltas[is_unknown, my_level] = my_preds[is_unknown]
+                with prof("model_predict_multi"):
+                    # Run the model at each level
+                    for my_level, my_model in enumerate(model_msg):
+                        my_preds = my_model.predict(input_data)
+                        is_unknown = np.isnan(deltas[:, my_level])
+                        deltas[is_unknown, my_level] = my_preds[is_unknown]
 
-            # Sum up the deltas
-            return np.sum(deltas, axis=1)
+                with prof("aggregate_deltas"):
+                    # Sum up the deltas
+                    return np.sum(deltas, axis=1)
 
     def retrain(self, model_msg: Pipeline, input_data: InputType, output_data: np.ndarray,
                 bootstrap: bool = False,
                 lower_fidelities: np.ndarray | None = None) -> ModelType:
-        if bootstrap:
-            samples = np.random.random_integers(0, len(input_data) - 1, size=(len(input_data),))
-            input_data = [input_data[i] for i in samples]
-            output_data = output_data[samples]
-            if lower_fidelities is not None:
-                lower_fidelities = lower_fidelities[samples, :]
+        
+        prof_log_base = self.run_dir
+        prof = SimpleProfiler(name="training_retrain", log_file=prof_log_base)
 
-        if lower_fidelities is None:
-            # For single level, train a single model
-            model_msg.fit(input_data, output_data)
-            return model_msg
-        else:
-            # Compute the delta and then train a different model for each delta
-            output_data = np.concatenate([lower_fidelities, output_data[:, None]], axis=1)  # Append target level to end
-            deltas = compute_deltas(output_data)
+        with prof("total_retrain_time"):
+            with prof("data_prep"):
+                if bootstrap:
+                    samples = np.random.random_integers(0, len(input_data) - 1, size=(len(input_data),))
+                    input_data = [input_data[i] for i in samples]
+                    output_data = output_data[samples]
+                    if lower_fidelities is not None:
+                        lower_fidelities = lower_fidelities[samples, :]
 
-            models = []
-            for y in deltas.T:
-                # Remove the missing values
-                mask = np.isfinite(y)
-                my_smiles = [i for m, i in zip(mask, input_data) if m]
-                y = y[mask]
+            if lower_fidelities is None:
+                # For single level, train a single model
+                with prof("model_fit"):
+                    model_msg.fit(input_data, output_data)
+                return model_msg
+            else:
+                with prof("prep_deltas"):
+                    # Compute the delta and then train a different model for each delta
+                    output_data = np.concatenate([lower_fidelities, output_data[:, None]], axis=1)  # Append target level to end
+                    deltas = compute_deltas(output_data)
 
-                # Fit a fresh copy of the model
-                my_model: Pipeline = clone(model_msg)
-                my_model.fit(my_smiles, y)
-                models.append(my_model)
-            return models
+                with prof("model_fit_multi"):
+                    models = []
+                    for y in deltas.T:
+                        # Remove the missing values
+                        mask = np.isfinite(y)
+                        my_smiles = [i for m, i in zip(mask, input_data) if m]
+                        y = y[mask]
+
+                        # Fit a fresh copy of the model
+                        my_model: Pipeline = clone(model_msg)
+                        my_model.fit(my_smiles, y)
+                        models.append(my_model)
+                    return models
 
     def update(self, model: ModelType, update_msg: ModelType) -> ModelType:
         return update_msg

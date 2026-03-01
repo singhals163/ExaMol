@@ -1,9 +1,13 @@
 """Specification of the optimization problem"""
+import json
+import os
 from pathlib import Path
 import shutil
 import sys
 
 from parsl import Config, HighThroughputExecutor
+from parsl.providers import LocalProvider
+from parsl.launchers import WrappedLauncher
 from proxystore.store import Store
 from proxystore.connectors.file import FileConnector
 
@@ -17,15 +21,25 @@ from examol.store.recipes import RedoxEnergy
 from examol.select.baseline import GreedySelector
 from examol.specify import ExaMolSpecification
 
-# Parameters you may want to configure
-num_random: int = 2  # Number of randomly-selected molecules to run
-num_total: int = 8  # Total number of molecules to run
+# Load run configuration dynamically
+env_config_path = os.environ.get('EXAMOL_CONFIG_PATH')
 
-# Get my path. We'll want to provide everything as absolute paths, as they are relative to this file
-my_path = Path().absolute()
+if env_config_path:
+    config_path = Path(env_config_path).resolve()
+    run_base_dir = config_path.parent  # Isolate outputs to the config's directory
+else:
+    run_base_dir = Path().absolute()
+    config_path = run_base_dir / 'run_config.json'
+
+with open(config_path, 'r') as f:
+    run_config = json.load(f)
+
+# Parameters extracted from config
+num_random: int = run_config.get('num_random', 2)
+num_total: int = run_config.get('num_total', 8)
 
 # Delete the old run
-run_dir = my_path / 'run'
+run_dir = run_base_dir / 'run'
 if run_dir.is_dir():
     shutil.rmtree(run_dir)
 
@@ -34,7 +48,7 @@ recipe = RedoxEnergy(1, energy_config='mopac_pm7', solvent='acn')
 
 # Make the scorer
 pipeline = make_knn_model()
-scorer = RDKitScorer()
+scorer = RDKitScorer(run_dir=run_dir)
 
 # Define the tools needed to solve the problem
 solution = SingleFidelityActiveLearning(
@@ -51,19 +65,43 @@ reporter = MarkdownReporter()
 
 # Make the parsl (compute) and proxystore (optional data fabric) configuration
 is_mac = sys.platform == 'darwin'
+
+sim_affinity = run_config.get('sim_affinity', 'none')
+train_score_affinity = run_config.get('train_score_affinity', 'none')
+num_cores = run_config.get('num_workers', 1)
+
 config = Config(
-    executors=[HighThroughputExecutor(max_workers_per_node=1)],
-    run_dir=str((my_path / 'parsl-logs')),
+    executors=[
+        HighThroughputExecutor(
+            label='simulation', 
+            max_workers_per_node=num_cores,
+            cpu_affinity=sim_affinity,
+            provider=LocalProvider(
+                launcher=WrappedLauncher(f"perf stat -e cycles,instructions,cache-references,cache-misses,L1-dcache-load-misses,LLC-load-misses -I 1000 -o {run_dir}/perf_stat_simulation.data"),  # Use the default launcher
+            ), 
+        ),
+        HighThroughputExecutor(
+            label='learning', 
+            max_workers_per_node=1, 
+            cores_per_worker=num_cores,
+            cpu_affinity=train_score_affinity,
+            provider=LocalProvider(
+                launcher=WrappedLauncher(f"perf stat -e cycles,instructions,cache-references,cache-misses,L1-dcache-load-misses,LLC-load-misses -I 1000 -o {run_dir}/perf_stat_learning.data"),  # Use the default launcher
+            ), 
+        ),
+    ],
+    run_dir=str((run_base_dir / 'parsl-logs')),
 )
-store = Store(name='file', connector=FileConnector(store_dir=str(my_path / 'proxystore')), metrics=True)
+store = Store(name='file', connector=FileConnector(store_dir=str(run_base_dir / 'proxystore')), metrics=True)
 
 spec = ExaMolSpecification(
     database=(run_dir / 'database.json'),
     recipes=[recipe],
-    search_space=[(my_path / 'search_space.smi')],
+    search_space=[(Path().absolute() / 'search_space.smi')], # Assumes search_space.smi is also copied to the subdirectories
     solution=solution,
     simulator=ASESimulator(scratch_dir=(run_dir / 'tmp'), clean_after_run=False),
     thinker=SingleStepThinker,
+    thinker_options={'run_config': run_config},
     compute_config=config,
     proxystore=store,
     reporters=[reporter],

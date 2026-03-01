@@ -52,12 +52,14 @@ class MoleculeThinker(BaseThinker):
                  solution: SolutionSpecification,
                  search_space: list[Path | str],
                  database: MoleculeStore,
-                 pool: ProcessPoolExecutor):
+                 pool: ProcessPoolExecutor,
+                 run_config: dict = None):
         super().__init__(queues, resource_counter=rec)
         self.database = database
         self.run_dir = run_dir
         self.run_dir.mkdir(parents=True, exist_ok=True)
         self.search_space = search_space
+        self.run_config = run_config or {}
 
         # Mark where the logs should be stored
         handler = logging.FileHandler(self.run_dir / 'run.log')

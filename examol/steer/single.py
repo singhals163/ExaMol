@@ -5,7 +5,6 @@ import pickle as pkl
 import shutil
 from functools import partial
 from pathlib import Path
-from queue import Queue
 from threading import Event
 from time import perf_counter
 from typing import Sequence
@@ -95,10 +94,23 @@ class SingleStepThinker(MoleculeThinker):
                  database: MoleculeStore,
                  pool: ProcessPoolExecutor,
                  num_workers: int = 2,
-                 inference_chunk_size: int = 10000):
-        super().__init__(queues, ResourceCounter(num_workers), run_dir, recipes, solution, search_space, database, pool)
+                 inference_chunk_size: int = 10000,
+                 run_config: dict = None):
+        super().__init__(queues, ResourceCounter(num_workers), run_dir, recipes, solution, search_space, database, pool, run_config=run_config)
+        
         self.search_space_dir = self.run_dir / 'search-space'
         self.scorer = solution.scorer
+        
+        # Load custom run configurations
+        self.run_config = run_config or {}
+        self.train_freq = self.run_config.get('train_freq', 2)
+        self.infer_freq = self.run_config.get('infer_freq', 4)
+        self.max_training_loops = self.run_config.get('max_training_loops', 5)
+        
+        # Track states to orchestrate independent training and scoring
+        self.training_loops_run = 0
+        self.first_training_completed = False
+
         self._cache_search_space(inference_chunk_size, search_space)
 
         # Startup-related information
@@ -110,8 +122,7 @@ class SingleStepThinker(MoleculeThinker):
             raise ValueError('You must provide the same number of models for each class')
         if len(self.models) != len(recipes):  # pragma: no-coverage
             raise ValueError('You must provide as many model ensembles as recipes')
-        self._model_proxies: list[list[Proxy | None]] = [[None] * len(m) for m in self.models]  # Proxy for the current model(s)
-        self.ready_models: Queue[tuple[int, int]] = Queue()  # Queue of models are ready for inference
+        self._model_proxies: list[list[Proxy | None]] = [[None] * len(m) for m in self.models]  
 
         # Partition the search space into smaller chunks
         self.search_space_smiles: list[list[str]]
@@ -262,7 +273,7 @@ class SingleStepThinker(MoleculeThinker):
 
     @event_responder(event_name='start_training')
     def retrain(self):
-        """Retrain all models"""
+        self.start_training.clear()
 
         # Check if training is still ongoing
         if self.start_inference.is_set():
@@ -316,9 +327,7 @@ class SingleStepThinker(MoleculeThinker):
             self.models[recipe_id][model_id] = self.scorer.update(self.models[recipe_id][model_id], model_msg)
             self.logger.info(f'Updated model {i + 1}/{self.num_models}. Recipe id={recipe_id}. Model id={model_id}')
 
-            # Signal to begin inference
-            self.start_inference.set()
-            self.ready_models.put((recipe_id, model_id))
+            self.first_training_completed = True
         self.logger.info('Finished training all models')
 
     def submit_inference(self) -> tuple[list[list[str]], np.ndarray, list[np.ndarray]]:
@@ -339,27 +348,25 @@ class SingleStepThinker(MoleculeThinker):
         # Get the proxystore for inference, if defined
         store = self.inference_store
 
-        # Submit a model as soon as it is read
-        for i in range(self.num_models):
-            # Wait for a model to finish training
-            recipe_id, model_id = self.ready_models.get()
-            model = self.models[recipe_id][model_id]
+        # Directly loop over the updated models for independent execution
+        for recipe_id in range(len(self.recipes)):
+            for model_id in range(len(self.models[recipe_id])):
+                model = self.models[recipe_id][model_id]
 
-            # Serialize and, if available, proxy the model
-            model_msg = self.scorer.prepare_message(model, training=False)
-            if store is not None:
-                model_msg = store.proxy(model_msg)
-                self._model_proxies[recipe_id][model_id] = model_msg
-            self.logger.info(f'Preparing to submit tasks for model {i + 1}/{self.num_models}.')
+                model_msg = self.scorer.prepare_message(model, training=False)
+                if store is not None:
+                    model_msg = store.proxy(model_msg)
+                    self._model_proxies[recipe_id][model_id] = model_msg
+                self.logger.info(f'Preparing to submit tasks for recipe {recipe_id}, model {model_id}.')
 
-            for chunk_id, (chunk_inputs, chunk_keys) in enumerate(zip(self.search_space_inputs, self.search_space_smiles)):
-                self.queues.send_inputs(
-                    model_msg, chunk_inputs,
-                    method='score',
-                    topic='inference',
-                    task_info={'recipe_id': recipe_id, 'model_id': model_id, 'chunk_id': chunk_id, 'chunk_size': len(chunk_keys)}
-                )
-            self.logger.info(f'Submitted all tasks for recipe={recipe_id} model={model_id}')
+                for chunk_id, (chunk_inputs, chunk_keys) in enumerate(zip(self.search_space_inputs, self.search_space_smiles)):
+                    self.queues.send_inputs(
+                        model_msg, chunk_inputs,
+                        method='score',
+                        topic='inference',
+                        task_info={'recipe_id': recipe_id, 'model_id': model_id, 'chunk_id': chunk_id, 'chunk_size': len(chunk_keys)}
+                    )
+                self.logger.info(f'Submitted all tasks for recipe={recipe_id} model={model_id}')
 
         # Prepare to store the inference results
         n_chunks = len(self.search_space_inputs)
@@ -385,7 +392,7 @@ class SingleStepThinker(MoleculeThinker):
 
     @event_responder(event_name='start_inference')
     def run_inference(self):
-        """Store inference results then update the task list"""
+        self.start_inference.clear()
 
         # Submit the tasks and prepare the storage
         chunk_smiles, all_done, inference_results = self.submit_inference()
@@ -444,4 +451,15 @@ class SingleStepThinker(MoleculeThinker):
         self.logger.info('Updated task queue. All done.')
 
     def _simulations_complete(self, record: MoleculeRecord):
-        self.start_training.set()
+        # 1. Evaluate Training condition
+        if self.completed > 0 and self.completed % self.train_freq == 0:
+            if self.training_loops_run < self.max_training_loops:
+                self.logger.info(f'Triggering training. Iterations complete: {self.completed}')
+                self.start_training.set()
+                self.training_loops_run += 1
+                
+        # 2. Evaluate Inference condition
+        if self.completed > 0 and self.completed % self.infer_freq == 0:
+            if self.first_training_completed:
+                self.logger.info(f'Triggering inference. Iterations complete: {self.completed}')
+                self.start_inference.set()
