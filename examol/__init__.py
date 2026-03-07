@@ -1,5 +1,6 @@
 from .version import __version__  # noqa: 401
 
+import os
 import time
 import json
 import fcntl
@@ -13,9 +14,15 @@ class SimpleProfiler:
         """
         self.stats = {}
         self.name = name
-        self.task_start_time = time.time()  # Captures when the overall task started
+        self.task_start_time = time.time()
         
-        # create a file in log_file by the name "profile_stats.jsonl" if it does not exist, otherwise use it
+        # Capture the CPU affinity for the current process
+        try:
+            self.cpus = list(os.sched_getaffinity(0))
+        except AttributeError:
+            # Fallback for OS (like Windows/macOS) that do not support sched_getaffinity
+            self.cpus = [] 
+        
         self.log_file = Path(log_file) / "profile_stats.jsonl"
 
     def __call__(self, label):
@@ -44,6 +51,7 @@ class SimpleProfiler:
             "timestamp": time.time(),          # Time when the log was saved/task finished
             "task_start_time": self.task_start_time,
             "task_type": self.name,
+            "cpus": self.cpus,
             "metrics": self.stats
         }
 
