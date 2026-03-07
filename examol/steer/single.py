@@ -276,9 +276,9 @@ class SingleStepThinker(MoleculeThinker):
         self.start_training.clear()
 
         # Check if training is still ongoing
-        if self.start_inference.is_set():
-            self.logger.info('Inference is still ongoing. Will not retrain yet')
-            return
+        # if self.start_inference.is_set():
+        #     self.logger.info('Inference is still ongoing. Will not retrain yet')
+        #     return
 
         # Check that we have enough data for all recipes
         for recipe in self.recipes:
@@ -328,6 +328,8 @@ class SingleStepThinker(MoleculeThinker):
             self.logger.info(f'Updated model {i + 1}/{self.num_models}. Recipe id={recipe_id}. Model id={model_id}')
 
             self.first_training_completed = True
+
+        self.training_loops_run += 1
         self.logger.info('Finished training all models')
 
     def submit_inference(self) -> tuple[list[list[str]], np.ndarray, list[np.ndarray]]:
@@ -456,7 +458,6 @@ class SingleStepThinker(MoleculeThinker):
             if self.training_loops_run < self.max_training_loops:
                 self.logger.info(f'Triggering training. Iterations complete: {self.completed}')
                 self.start_training.set()
-                self.training_loops_run += 1
                 
         # 2. Evaluate Inference condition
         if self.completed > 0 and self.completed % self.infer_freq == 0:
