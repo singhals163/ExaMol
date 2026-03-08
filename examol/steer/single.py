@@ -111,6 +111,11 @@ class SingleStepThinker(MoleculeThinker):
         self.training_loops_run = 0
         self.first_training_completed = False
 
+        # State tracking for the exponential/geometric policy
+        self.train_policy = self.run_config.get('train_policy', 'linear')
+        self.training_loops_triggered = 0
+        self.next_train_target = self.train_freq if self.train_policy == 'exponential' else None
+
         self._cache_search_space(inference_chunk_size, search_space)
 
         # Startup-related information
@@ -454,7 +459,18 @@ class SingleStepThinker(MoleculeThinker):
 
     def _simulations_complete(self, record: MoleculeRecord):
         # 1. Evaluate Training condition
-        if self.completed > 0 and self.completed % self.train_freq == 0:
+        trigger_training = False
+        
+        if self.train_policy == 'exponential':
+            if self.completed >= self.next_train_target:
+                trigger_training = True
+                self.training_loops_triggered += 1
+                self.next_train_target += 2 ** self.training_loops_triggered
+        else:
+            if self.completed > 0 and self.completed % self.train_freq == 0:
+                trigger_training = True
+
+        if trigger_training:
             if self.training_loops_run < self.max_training_loops:
                 self.logger.info(f'Triggering training. Iterations complete: {self.completed}')
                 self.start_training.set()
