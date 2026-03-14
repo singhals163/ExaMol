@@ -78,6 +78,7 @@ class MoleculeThinker(BaseThinker):
         self.recipes = tuple(recipes)
         self.task_queue_lock = Condition()
         self.task_queue = []  # List of tasks to run, SMILES string and score
+        self.simulations_paused = False  # Flag to support lockstep pausing
         self.task_iterator = self.task_iterator()  # Tool for pulling from the task queue
         self.recipe_types = dict((r.name, r) for r in recipes)
 
@@ -147,8 +148,9 @@ class MoleculeThinker(BaseThinker):
         while True:
             # Get the next task to run
             with self.task_queue_lock:
-                if len(self.task_queue) == 0:
-                    self.logger.info('No tasks available to run. Waiting')
+                # Wait if queue is empty OR if simulations are paused (allowing ongoing np.inf tasks to finish)
+                while len(self.task_queue) == 0 or (self.simulations_paused and self.task_queue[0][1] != np.inf):
+                    self.logger.info('No tasks available to run or paused for lockstep. Waiting')
                     while not self.task_queue_lock.wait(timeout=2):
                         if self.done.is_set():
                             yield None, None, None

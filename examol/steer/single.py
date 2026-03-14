@@ -280,16 +280,13 @@ class SingleStepThinker(MoleculeThinker):
     def retrain(self):
         self.start_training.clear()
 
-        # Check if training is still ongoing
-        # if self.start_inference.is_set():
-        #     self.logger.info('Inference is still ongoing. Will not retrain yet')
-        #     return
-
         # Check that we have enough data for all recipes
         for recipe in self.recipes:
             train_size = min(self.count_training_size(r) for r in self.recipes)
             if train_size < self.solution.minimum_training_size:
                 self.logger.info(f'Too few to entries to train {recipe.name}. Waiting for {self.solution.minimum_training_size}. Have {train_size}')
+                # LOCKSTEP FALLBACK: Trigger inference to unpause simulations and prevent deadlock
+                self.start_inference.set()
                 return
 
         for recipe_id, recipe in enumerate(self.recipes):
@@ -338,7 +335,10 @@ class SingleStepThinker(MoleculeThinker):
             self.first_training_completed = True
 
         self.training_loops_run += 1
-        self.logger.info('Finished training all models')
+        self.logger.info('Finished training all models. Triggering inference in lockstep.')
+        
+        # LOCKSTEP: Trigger inference sequentially after training is fully completed
+        self.start_inference.set()
 
     def submit_inference(self) -> tuple[list[list[str]], np.ndarray, list[np.ndarray]]:
         """Submit all molecules to be evaluated, return placeholders for their outputs
@@ -451,14 +451,18 @@ class SingleStepThinker(MoleculeThinker):
 
         # Get the top list of molecules
         self.logger.info('Done storing all results')
+        
+        # LOCKSTEP RESUME: Repopulate the queue and wake up the base thinker
         with self.task_queue_lock:
-            self.task_queue.clear()
+            # Preserve any in-progress multi-step tasks that got added during inference
+            self.task_queue = [x for x in self.task_queue if x[1] == np.inf]
             for key, score in selector.dispense():
                 self.task_queue.append((str(key), score))
 
+            self.simulations_paused = False  # UNPAUSE simulations
             # Notify anyone waiting on more tasks
             self.task_queue_lock.notify_all()
-        self.logger.info('Updated task queue. All done.')
+        self.logger.info('Updated task queue and resumed simulations. All done.')
 
     def _simulations_complete(self, record: MoleculeRecord):
         # 1. Evaluate Training condition
@@ -476,10 +480,10 @@ class SingleStepThinker(MoleculeThinker):
         if trigger_training:
             if self.training_loops_run < self.max_training_loops:
                 self.logger.info(f'Triggering training. Iterations complete: {self.completed}')
-                self.start_training.set()
                 
-        # 2. Evaluate Inference condition
-        if self.completed > 0 and self.completed % self.infer_freq == 0:
-            if self.first_training_completed:
-                self.logger.info(f'Triggering inference. Iterations complete: {self.completed}')
-                self.start_inference.set()
+                # LOCKSTEP PAUSE: Pause simulations, preserving only in-progress tasks
+                with self.task_queue_lock:
+                    self.simulations_paused = True
+                    self.task_queue = [x for x in self.task_queue if x[1] == np.inf]
+                    
+                self.start_training.set()
