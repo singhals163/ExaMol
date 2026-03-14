@@ -84,6 +84,11 @@ class MoleculeThinker(BaseThinker):
         # Attributes related to performing compute on the thinker
         self.pool: ProcessPoolExecutor = pool
 
+    def _log_sequence(self, message: str):
+        """Append a message to the custom run_sequence.log file."""
+        with open(self.run_dir / 'run_sequence.log', 'a') as f:
+            f.write(message + '\n')
+
     def iterate_over_search_space(self, only_smiles: bool = False) -> Iterator[MoleculeRecord | str]:
         """Function to produce a stream of molecules from the input files
 
@@ -220,8 +225,14 @@ class MoleculeThinker(BaseThinker):
                     self.done.set()
 
                 # Mark that we've finished with all recipes
+                final_results = [recipe.lookup(record) for recipe in self.recipes]
                 result.task_info['status'] = 'finished'
-                result.task_info['result'] = [recipe.lookup(record) for recipe in self.recipes]
+                result.task_info['result'] = final_results
+                
+                # Write to the sequence log with the InChI key and final computed energy
+                for final_energy in final_results:
+                    self._log_sequence(f"Simulation result | key: {record.key} value: {final_energy}"),
+
                 self._simulations_complete(record)
             else:
                 # If not, see if we need to resubmit to finish the computation

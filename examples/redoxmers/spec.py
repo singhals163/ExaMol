@@ -12,7 +12,7 @@ from proxystore.store import Store
 from proxystore.connectors.file import FileConnector
 
 from examol.reporting.markdown import MarkdownReporter
-from examol.score.rdkit import make_knn_model, RDKitScorer
+from examol.score.rdkit import make_gpr_model, RDKitScorer
 from examol.simulate.ase import ASESimulator
 from examol.solution import SingleFidelityActiveLearning
 from examol.start.fast import RandomStarter
@@ -47,7 +47,7 @@ if run_dir.is_dir():
 recipe = RedoxEnergy(1, energy_config='mopac_pm7', solvent='acn')
 
 # Make the scorer
-pipeline = make_knn_model()
+pipeline = make_gpr_model(max_pcs=10)
 scorer = RDKitScorer(run_dir=run_dir)
 
 # Define the tools needed to solve the problem
@@ -77,16 +77,16 @@ config = Config(
             max_workers_per_node=num_cores,
             cpu_affinity=sim_affinity,
             provider=LocalProvider(
-                launcher=WrappedLauncher(f"perf stat -e cycles,instructions,cache-references,cache-misses,L1-dcache-load-misses,LLC-load-misses -I 1000 -o {run_dir}/perf_stat_simulation.data"),  # Use the default launcher
+                launcher=WrappedLauncher(f"perf stat -e cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,L1-icache-loads,L1-icache-load-misses,LLC-loads,LLC-load-misses,dTLB-load-misses,iTLB-load-misses,minor-faults,major-faults -I 1000 -o {run_dir}/perf_stat_simulation.data perf stat -e power/energy-pkg/ -I 1000 -o {run_dir}/power.data"),  # Use the default launcher
             ), 
         ),
         HighThroughputExecutor(
             label='learning', 
             max_workers_per_node=1, 
-            cores_per_worker=num_cores,
+            # cores_per_worker=num_cores,
             cpu_affinity=train_score_affinity,
             provider=LocalProvider(
-                launcher=WrappedLauncher(f"perf stat -e cycles,instructions,cache-references,cache-misses,L1-dcache-load-misses,LLC-load-misses -I 1000 -o {run_dir}/perf_stat_learning.data"),  # Use the default launcher
+                launcher=WrappedLauncher(f"perf stat -e cycles,instructions,branches,branch-misses,L1-dcache-loads,L1-dcache-load-misses,L1-icache-loads,L1-icache-load-misses,LLC-loads,LLC-load-misses,dTLB-load-misses,iTLB-load-misses,minor-faults,major-faults -I 1000 -o {run_dir}/perf_stat_training.data "),  # Use the default launcher
             ), 
         ),
     ],

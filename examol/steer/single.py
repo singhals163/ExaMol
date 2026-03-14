@@ -297,6 +297,9 @@ class SingleStepThinker(MoleculeThinker):
             train_set = self._get_training_set(recipe)
             self.logger.info(f'Gathered a total of {len(train_set)} entries for retraining recipe {recipe_id}')
 
+            # ADDED: Log the exact input size to the sequence log
+            self._log_sequence(f"Training | input size: {len(train_set)}")
+
             # Process to form the inputs and outputs
             train_inputs = self.scorer.transform_inputs(train_set)
             train_outputs = self.scorer.transform_outputs(train_set, recipe)
