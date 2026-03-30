@@ -3,6 +3,7 @@ import gzip
 import json
 import pickle as pkl
 import shutil
+import math
 from functools import partial
 from pathlib import Path
 from threading import Event
@@ -106,15 +107,29 @@ class SingleStepThinker(MoleculeThinker):
         self.train_freq = self.run_config.get('train_freq', 2)
         self.infer_freq = self.run_config.get('infer_freq', 4)
         self.max_training_loops = self.run_config.get('max_training_loops', 5)
+        self.max_loops = self.run_config.get('max_loops', -1)
         
         # Track states to orchestrate independent training and scoring
         self.training_loops_run = 0
         self.first_training_completed = False
+        self.inference_loop_counter = 1
+        self.simulated_molecules = set()
 
         # State tracking for the exponential/geometric policy
         self.train_policy = self.run_config.get('train_policy', 'linear')
         self.training_loops_triggered = 0
         self.next_train_target = self.train_freq if self.train_policy == 'exponential' else None
+
+        # Initialize the true energy map for greedy inference
+        key_value_file = Path("/users/vthurime/ExaMol/examples/redoxmers/molecules_key_value.txt")
+        self.molecules_energies_map = {}
+        if key_value_file.exists():
+            with open(key_value_file, "r") as f: 
+                for line in f:
+                    if ":" in line:
+                        key, value = line.split(":")
+                        self.molecules_energies_map[key.strip()] = float(value.strip())
+        self.processed_keys = set(self.molecules_energies_map.keys())
 
         self._cache_search_space(inference_chunk_size, search_space)
 
@@ -142,6 +157,78 @@ class SingleStepThinker(MoleculeThinker):
     def num_models(self) -> int:
         """Number of models being trained by this class"""
         return sum(map(len, self.models))
+
+    def generate_inference_results(self):
+        """
+        The overall distribution is present in molecules_energies_map
+        We will generate a sequence of molecules in the map that have not been simulated till now
+        This sequence will also tend towards higher energy molecules with increase in the number of iteration
+        The idea is that ith iteration will have j buckets and we'll generate random values of energies of molecules
+        falling in each bucket based on a range of energy for the bucket it belongs to
+        Once this is passed to the greedy selector, it will pick the highest predicted energies
+        """
+        i = self.inference_loop_counter
+        self.inference_loop_counter += 1
+
+        if not self.molecules_energies_map:
+            self.logger.error("No molecule key-value data found (self.molecules_energies_map is empty). Cannot run greedy inference.")
+            return [], []
+            
+        all_energies = list(self.molecules_energies_map.values())
+        min_energy = min(all_energies)
+        max_energy = max(all_energies)
+        self.logger.info(f"Energy range found: [{min_energy}, {max_energy}]")
+
+        # Define buckets based on the 2^(i+1) logic
+        num_buckets = max(int(math.ceil(1.8 * math.log(i+1, 2))), 2)  # Ensure at least 2 buckets
+        
+        # We need num_buckets + 1 points to define num_buckets intervals
+        bins = np.linspace(min_energy, max_energy, num_buckets + 1)
+        self.logger.info(f"Partitioning energy space into {num_buckets} buckets.")
+        
+        final_filtered_smiles = []
+        final_predictions = []
+
+        # Iterate over search space, find bucket, generate prediction
+        # Flatten the list of chunks into a single list of all smiles
+        all_search_smiles = [smile for chunk in self.search_space_smiles for smile in chunk]
+        self.logger.info(f"Processing {len(all_search_smiles)} molecules from search space.")
+
+        for smile in all_search_smiles:
+            # Safely get the InChI key from the smile string
+            try:
+                inchi_key = MoleculeRecord.from_identifier(smile).key
+            except Exception:
+                continue
+
+            # Filter out molecules we don't want to "predict"
+            if inchi_key not in self.processed_keys or inchi_key in self.simulated_molecules:
+                continue
+
+            # Get the molecule's true energy
+            true_energy = self.molecules_energies_map.get(inchi_key)
+
+            if true_energy is None:
+                continue 
+
+            # Find which bucket it belongs to
+            bucket_index = np.digitize(true_energy, bins) - 1
+            
+            # Clamp the index to be within [0, num_buckets - 1]
+            bucket_index = max(0, min(bucket_index, num_buckets - 1))
+
+            # Get the energy range for that bucket
+            bucket_low = bins[bucket_index]
+            bucket_high = bins[bucket_index + 1]
+
+            # Generate the random "prediction" in that range
+            prediction = np.random.uniform(bucket_low, bucket_high)
+
+            final_filtered_smiles.append(smile)
+            final_predictions.append(prediction)
+
+        self.logger.info(f"Generated {len(final_filtered_smiles)} predictions.")
+        return final_filtered_smiles, final_predictions
 
     def _cache_search_space(self, inference_chunk_size: int, search_space: list[str | Path]):
         """Cache the search space into a directory within the run"""
@@ -253,15 +340,10 @@ class SingleStepThinker(MoleculeThinker):
             self.start_training.set()
             return
 
-        # If not, pick some
-        self.logger.info(f'Training set is smaller than the threshold size ({train_size}<{self.solution.minimum_training_size})')
-        search_space_size = sum(map(len, self.search_space_smiles))
-        subset = self.starter.select(list(interleave_longest(*self.search_space_smiles)), min(self.num_to_run, search_space_size))
-        self.logger.info(f'Selected {len(subset)} molecules to run')
-        with self.task_queue_lock:
-            for key in subset:
-                self.task_queue.append((key, np.nan))  # All get the same score
-            self.task_queue_lock.notify_all()
+        self.logger.info(f'Training set is smaller than the threshold size ({train_size}<{self.solution.minimum_training_size}). Falling back to greedy initialization.')
+        
+        # Trigger the greedy inference to generate the first batch instead of random start
+        self.start_inference.set()
 
     def get_additional_training_information(self, train_set: list[MoleculeRecord], recipe: PropertyRecipe) -> dict[str, object]:
         """Determine any additional information to be provided during training
@@ -402,69 +484,77 @@ class SingleStepThinker(MoleculeThinker):
 
     @event_responder(event_name='start_inference')
     def run_inference(self):
+        """Perform greedy inference simulation, store results, then update the task list"""
         self.start_inference.clear()
 
-        # Submit the tasks and prepare the storage
-        chunk_smiles, all_done, inference_results = self.submit_inference()
+        # If max training is 0, select to_select molecules to run randomly each time
+        if self.max_loops == 0:
+            with open((self.run_dir / 'run_sequence.log'), 'a') as fp:
+                fp.write(f"Max Loops 0 Reached. Selecting {self.solution.selector.to_select} random molecules.\n")
+            
+            search_space_size = sum(map(len, self.search_space_smiles))
+            subset = self.starter.select(list(interleave_longest(*self.search_space_smiles)), min(self.num_to_run, search_space_size))
+            with self.task_queue_lock:
+                for key in subset:
+                    self.task_queue.append((key, np.nan))
+                    # It is okay to add to simulated_molecules here for the random initialization
+                    self.simulated_molecules.add(MoleculeRecord.from_identifier(key).key)
+                self.task_queue_lock.notify_all()
+            return
+
+        # If max training is reached, note it but still pick from the latest bucketed predictions
+        if self.max_loops != -1 and (self.inference_loop_counter - 1) >= self.max_loops:
+            with open((self.run_dir / 'run_sequence.log'), 'a') as fp:
+                fp.write(f"Max Loops {self.max_loops} Reached. Selecting {self.solution.selector.to_select} previously predicted molecules.\n")
+
+        self.logger.info(f'Starting greedy inference iteration {self.inference_loop_counter}.')
 
         # Reset the selector
         selector = self.solution.selector
         selector.update(self.database, self.recipes)
         selector.start_gathering()
 
-        # Gather all inference results
-        n_tasks = all_done.size
-        self.logger.info(f'Prepared to receive {n_tasks} results')
-        for i in range(n_tasks):
-            # Find which result this is
-            result = self.queues.get_result(topic='inference')
-            start_time = perf_counter()
-            recipe_id = result.task_info['recipe_id']
-            model_id = result.task_info['model_id']
-            chunk_id = result.task_info['chunk_id']
-            self.logger.info(f'Received inference result {i + 1}/{n_tasks}. Recipe={recipe_id}, model={model_id}, chunk={chunk_id}, success={result.success}')
+        # --- MOCK GREEDY INFERENCE LOGIC ---
+        final_filtered_smiles, final_predictions = self.generate_inference_results()
 
-            # Save the outcome
-            self._write_result(result, 'inference')
-            assert result.success, f'Inference failed due to {result.failure_info}'
+        # Add to selector
+        if final_filtered_smiles:
+            # Format results for the selector. Shape must be (recipes, molecules, models)
+            # We assume 1 recipe and 1 model for this mock score to map cleanly
+            final_results_array = np.array(final_predictions).reshape(1, -1, 1)
+            selector.add_possibilities(final_filtered_smiles, final_results_array)
+            self.logger.info(f"Added {len(final_filtered_smiles)} possibilities to selector.")
+        # --- END OF MOCK LOGIC ---
 
-            # Update the inference results
-            all_done[chunk_id, recipe_id, model_id] = True
-            inference_results[chunk_id][recipe_id, :, model_id] = np.squeeze(result.value)
-
-            # Check if we are done for the whole chunk (all models for this chunk)
-            if all_done[chunk_id, :, :].all():
-                self.logger.info(f'Everything done for chunk={chunk_id}. Adding to selector.')
-                filtered_smiles, filtered_results = self._filter_inference_results(chunk_id, chunk_smiles[chunk_id], inference_results[chunk_id])
-                if len(filtered_smiles) > 0:
-                    selector.add_possibilities(filtered_smiles, filtered_results)
-
-            # If we are done with all chunks for a model
-            if all_done[:, recipe_id, model_id].all():
-                self.logger.info(f'Done with all inference tasks for recipe={recipe_id} model={model_id}. Evicting proxy, if any.')
-                if self._model_proxies[recipe_id][model_id] is not None:
-                    key = get_key(self._model_proxies[recipe_id][model_id])
-                    self.inference_store.evict(key)
-
-            # Mark that we're done with this result
-            self.logger.info(f'Done processing inference result {i + 1}/{n_tasks}. Time: {perf_counter() - start_time:.2e}s')
-
-        # Get the top list of molecules
         self.logger.info('Done storing all results')
         
         # LOCKSTEP RESUME: Repopulate the queue and wake up the base thinker
         with self.task_queue_lock:
             # Preserve any in-progress multi-step tasks that got added during inference
             self.task_queue = [x for x in self.task_queue if x[1] == np.inf]
-            for key, score in selector.dispense():
-                self.task_queue.append((str(key), score))
+            
+            # Create a set of keys currently running to prevent duplicate submissions
+            running_keys = {x[0] for x in self.task_queue}
+            
+            for key_f, score in selector.dispense():
+                # Safely extract key for tracking
+                mol_record = MoleculeRecord.from_identifier(str(key_f))
+                key = str(key_f)
+                
+                # Only append if it is not already actively running
+                if key not in running_keys:
+                    self.task_queue.append((key, score))
 
             self.simulations_paused = False  # UNPAUSE simulations
             # Notify anyone waiting on more tasks
             self.task_queue_lock.notify_all()
+            
         self.logger.info('Updated task queue and resumed simulations. All done.')
 
     def _simulations_complete(self, record: MoleculeRecord):
+        # Mark molecule as simulated so greedy inference skips it next time
+        self.simulated_molecules.add(record.key)
+
         # 1. Evaluate Training condition
         trigger_training = False
         
