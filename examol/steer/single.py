@@ -61,18 +61,6 @@ class SingleStepThinker(MoleculeThinker):
         num_workers: Number of simulation tasks to run in parallel
         inference_chunk_size: Number of molecules to run inference on per task
     """
-    """
-
-    Args:
-        queues: Queues used to communicate with the task server
-        rec: Tool used to control the number of tasks being deployed on each resource
-        run_dir: Directory in which to store logs, etc.
-        recipes: Recipes used to compute the target properties
-        database: Connection to the store of molecular data
-        solution: Settings related to tools used to solve the problem (e.g., active learning strategy)
-        search_space: Search space of molecules. Provided as a list of paths to ".smi" files
-        inference_chunk_size: Number of molecules to run inference on per task
-    """
 
     search_space_dir: Path
     """Cache directory for search space"""
@@ -161,80 +149,73 @@ class SingleStepThinker(MoleculeThinker):
 
     def generate_inference_results(self):
         """
-        The overall distribution is present in molecules_energies_map
-        We will generate a sequence of molecules in the map that have not been simulated till now
-        This sequence will also tend towards higher energy molecules with increase in the number of iteration
-        The idea is that ith iteration will have j buckets and we'll generate random values of energies of molecules
-        falling in each bucket based on a range of energy for the bucket it belongs to
-        Once this is passed to the greedy selector, it will pick the highest predicted energies
+        Custom inference logic based on a 10-bucket partition and logarithmic scaling.
+        Ensures exploration is wide early on, and narrows to the top buckets as data and training increase.
         """
-        if self.completed == 0:
-            i = 1
-        else:
-            i = (self.completed // self.train_freq) - 1
-            
-        self.inference_loop_counter = i
-        self.logger.info(f"Using inference loop counter i={i} based on completed={self.completed}")
-
         if not self.molecules_energies_map:
-            self.logger.error("No molecule key-value data found (self.molecules_energies_map is empty). Cannot run greedy inference.")
+            self.logger.error("No molecule key-value data found. Cannot run mock inference.")
             return [], []
-            
-        all_energies = list(self.molecules_energies_map.values())
-        min_energy = min(all_energies)
-        max_energy = max(all_energies)
-        self.logger.info(f"Energy range found: [{min_energy}, {max_energy}]")
 
-        # Define buckets based on the 2^(i+1) logic
-        num_buckets = max(int(math.ceil(1.8 * math.log(i+1, 2))), 2)  # Ensure at least 2 buckets
+        all_energies = list(self.molecules_energies_map.values())
+        global_min = min(all_energies)
+        global_max = max(all_energies)
+        energy_range = global_max - global_min
+        step = energy_range / 10.0
+
+        # Calculate logical constraints based on hardcoded 200 sims and batches of 10
+        # 1. Data ratio (0.0 to 1.0)
+        data_ratio = min(1.0, self.completed / 200.0)
         
-        # We need num_buckets + 1 points to define num_buckets intervals
-        bins = np.linspace(min_energy, max_energy, num_buckets + 1)
-        self.logger.info(f"Partitioning energy space into {num_buckets} buckets.")
+        # 2. Train ratio (0.0 to 1.0) using logarithmic pattern
+        max_expected_trains = 20.0
+        train_ratio = math.log(1 + self.training_loops_run) / math.log(1 + max_expected_trains)
+        train_ratio = min(1.0, train_ratio)
+
+        # E = number of bottom buckets to drop (0 to 9)
+        # Combines data availability and training volume
+        E = int(9.0 * data_ratio * train_ratio)
+        E = max(0, min(9, E))
+
+        cutoff_energy = global_min + (E * step)
         
+        self.logger.info(f"Mock Inference | Sims: {self.completed}/200, Trains: {self.training_loops_run}/20")
+        self.logger.info(f"Mock Inference | Data Ratio: {data_ratio:.2f}, Train Log Ratio: {train_ratio:.2f}")
+        self.logger.info(f"Mock Inference | Dropping bottom {E} buckets. Allowed: Top {10 - E}. Cutoff: {cutoff_energy:.3f}")
+
         final_filtered_smiles = []
         final_predictions = []
 
-        # Iterate over search space, find bucket, generate prediction
-        # Flatten the list of chunks into a single list of all smiles
         all_search_smiles = [smile for chunk in self.search_space_smiles for smile in chunk]
-        self.logger.info(f"Processing {len(all_search_smiles)} molecules from search space.")
 
         for smile in all_search_smiles:
-            # Safely get the InChI key from the smile string
             try:
                 inchi_key = MoleculeRecord.from_identifier(smile).key
             except Exception:
                 continue
 
-            # Filter out molecules we don't want to "predict"
             if inchi_key not in self.processed_keys or inchi_key in self.simulated_molecules:
                 continue
 
-            # Get the molecule's true energy
             true_energy = self.molecules_energies_map.get(inchi_key)
-
             if true_energy is None:
                 continue 
 
-            # Find which bucket it belongs to
-            bucket_index = np.digitize(true_energy, bins) - 1
-            
-            # Clamp the index to be within [0, num_buckets - 1]
-            bucket_index = max(0, min(bucket_index, num_buckets - 1))
-
-            # Get the energy range for that bucket
-            bucket_low = bins[bucket_index]
-            bucket_high = bins[bucket_index + 1]
-
-            # Generate the random "prediction" in that range
-            prediction = np.random.uniform(bucket_low, bucket_high)
+            # Mixing Logic: 
+            # If the molecule is inside an allowed bucket, we assign it a random score bounded by the cutoff.
+            # This masks which specific bucket it belongs to, forcing the greedy selector to draw randomly 
+            # from the ENTIRE allowed pool, preventing instant exhaustion of the absolute best bucket.
+            if true_energy >= cutoff_energy:
+                prediction = np.random.uniform(cutoff_energy, global_max)
+            else:
+                # Dropped buckets are assigned a terrible score so they are ignored by the greedy selector
+                prediction = true_energy - 100.0 
 
             final_filtered_smiles.append(smile)
             final_predictions.append(prediction)
 
         self.logger.info(f"Generated {len(final_filtered_smiles)} predictions.")
         return final_filtered_smiles, final_predictions
+
 
     def _cache_search_space(self, inference_chunk_size: int, search_space: list[str | Path]):
         """Cache the search space into a directory within the run"""
@@ -513,7 +494,7 @@ class SingleStepThinker(MoleculeThinker):
             with open((self.run_dir / 'run_sequence.log'), 'a') as fp:
                 fp.write(f"Max Loops {self.max_loops} Reached. Selecting {self.solution.selector.to_select} previously predicted molecules.\n")
 
-        self.logger.info(f'Starting greedy inference iteration {self.inference_loop_counter}.')
+        self.logger.info(f'Starting mock-ML inference blending.')
 
         # Reset the selector
         selector = self.solution.selector

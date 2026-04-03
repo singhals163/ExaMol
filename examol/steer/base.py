@@ -150,11 +150,21 @@ class MoleculeThinker(BaseThinker):
             with self.task_queue_lock:
                 # Wait if queue is empty OR if simulations are paused (allowing ongoing np.inf tasks to finish)
                 while len(self.task_queue) == 0 or (self.simulations_paused and self.task_queue[0][1] != np.inf):
+                    
+                    # Failsafe: Detect starvation offset deadlocks
+                    if len(self.task_queue) == 0 and not self.simulations_paused and not self.done.is_set():
+                        self.logger.warning('Task queue is empty and not paused (starvation detected). Triggering fallback inference to replenish.')
+                        if hasattr(self, 'start_inference'):
+                            self.start_inference.set()
+                            
                     self.logger.info('No tasks available to run or paused for lockstep. Waiting')
                     while not self.task_queue_lock.wait(timeout=2):
                         if self.done.is_set():
                             yield None, None, None
-            record, score, recipes = self._get_next_tasks()
+                            
+                # POP FROM QUEUE WHILE STRICTLY UNDER THE LOCK TO PREVENT INDEX ERRORS
+                record, score, recipes = self._get_next_tasks()
+
             recipe_names = [f'{r.name}/{r.level}' for r in recipes]
             self.logger.info(f'Selected {record.key} to run next for recipes: {", ".join(recipe_names)}.'
                              f' Score={score:.2f}, queue length={len(self.task_queue)}')
