@@ -108,6 +108,7 @@ class SingleStepThinker(MoleculeThinker):
         self.infer_freq = self.run_config.get('infer_freq', 4)
         self.max_training_loops = self.run_config.get('max_training_loops', 5)
         self.max_loops = self.run_config.get('max_loops', -1)
+        self.run_training_cycles = self.run_config.get('run_training_cycles', None)
         
         # Track states to orchestrate independent training and scoring
         self.training_loops_run = 0
@@ -167,8 +168,13 @@ class SingleStepThinker(MoleculeThinker):
         falling in each bucket based on a range of energy for the bucket it belongs to
         Once this is passed to the greedy selector, it will pick the highest predicted energies
         """
-        i = self.inference_loop_counter
-        self.inference_loop_counter += 1
+        if self.completed == 0:
+            i = 1
+        else:
+            i = (self.completed // self.train_freq) - 1
+            
+        self.inference_loop_counter = i
+        self.logger.info(f"Using inference loop counter i={i} based on completed={self.completed}")
 
         if not self.molecules_energies_map:
             self.logger.error("No molecule key-value data found (self.molecules_energies_map is empty). Cannot run greedy inference.")
@@ -557,8 +563,16 @@ class SingleStepThinker(MoleculeThinker):
 
         # 1. Evaluate Training condition
         trigger_training = False
+        trigger_inference_only = False
         
-        if self.train_policy == 'exponential':
+        if self.run_training_cycles is not None:
+            if self.completed > 0 and self.completed % self.train_freq == 0:
+                cycle_index = (self.completed // self.train_freq) - 1
+                if str(cycle_index) in self.run_training_cycles:
+                    trigger_training = True
+                else:
+                    trigger_inference_only = True
+        elif self.train_policy == 'exponential':
             if self.completed >= self.next_train_target:
                 trigger_training = True
                 self.training_loops_triggered += 1
@@ -577,3 +591,13 @@ class SingleStepThinker(MoleculeThinker):
                     self.task_queue = [x for x in self.task_queue if x[1] == np.inf]
                     
                 self.start_training.set()
+                
+        elif trigger_inference_only:
+            self.logger.info(f'Skipping training but triggering inference. Iterations complete: {self.completed}')
+            
+            # Pause simulations and immediately trigger inference directly without updating models
+            with self.task_queue_lock:
+                self.simulations_paused = True
+                self.task_queue = [x for x in self.task_queue if x[1] == np.inf]
+                
+            self.start_inference.set()
