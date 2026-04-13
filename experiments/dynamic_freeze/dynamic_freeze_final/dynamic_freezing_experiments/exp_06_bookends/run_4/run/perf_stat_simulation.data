@@ -1,0 +1,704 @@
+# started on Fri Apr  3 19:17:28 2026
+
+#           time             counts unit events
+     1.001042749      2,296,379,279      cycles                                                                  (36.39%)
+     1.001042749      2,750,707,554      instructions                     #    1.20  insn per cycle              (45.55%)
+     1.001042749        553,650,334      branches                                                                (45.65%)
+     1.001042749         19,984,889      branch-misses                    #    3.61% of all branches             (45.79%)
+     1.001042749        835,533,175      L1-dcache-loads                                                         (43.76%)
+     1.001042749         41,545,319      L1-dcache-load-misses            #    4.97% of all L1-dcache accesses   (18.18%)
+     1.001042749    <not supported>      L1-icache-loads                                                       
+     1.001042749         35,669,453      L1-icache-load-misses                                                   (18.06%)
+     1.001042749         14,456,474      LLC-loads                                                               (27.03%)
+     1.001042749            419,572      LLC-load-misses                  #    2.90% of all LL-cache accesses    (36.08%)
+     1.001042749          3,117,657      dTLB-load-misses                                                        (36.04%)
+     1.001042749            698,398      iTLB-load-misses                                                        (36.15%)
+     1.001042749             17,177      minor-faults                                                          
+     1.001042749                  0      major-faults                                                          
+     2.001817652      7,740,515,665      cycles                                                                  (36.67%)
+     2.001817652      9,369,112,852      instructions                     #    1.21  insn per cycle              (45.73%)
+     2.001817652      1,874,747,788      branches                                                                (45.64%)
+     2.001817652         63,433,633      branch-misses                    #    3.38% of all branches             (45.50%)
+     2.001817652      2,755,133,349      L1-dcache-loads                                                         (44.19%)
+     2.001817652        136,966,971      L1-dcache-load-misses            #    4.97% of all L1-dcache accesses   (18.08%)
+     2.001817652    <not supported>      L1-icache-loads                                                       
+     2.001817652        121,096,372      L1-icache-load-misses                                                   (18.04%)
+     2.001817652         46,647,755      LLC-loads                                                               (27.12%)
+     2.001817652          1,953,367      LLC-load-misses                  #    4.19% of all LL-cache accesses    (36.25%)
+     2.001817652         10,133,912      dTLB-load-misses                                                        (36.42%)
+     2.001817652          2,204,880      iTLB-load-misses                                                        (36.59%)
+     2.001817652             44,775      minor-faults                                                          
+     2.001817652                  0      major-faults                                                          
+     3.003118210      7,614,594,515      cycles                                                                  (36.35%)
+     3.003118210      9,084,438,783      instructions                     #    1.19  insn per cycle              (45.50%)
+     3.003118210      1,823,870,332      branches                                                                (45.52%)
+     3.003118210         58,373,974      branch-misses                    #    3.20% of all branches             (45.46%)
+     3.003118210      2,680,074,716      L1-dcache-loads                                                         (44.93%)
+     3.003118210        164,519,940      L1-dcache-load-misses            #    6.14% of all L1-dcache accesses   (18.43%)
+     3.003118210    <not supported>      L1-icache-loads                                                       
+     3.003118210        102,444,240      L1-icache-load-misses                                                   (18.31%)
+     3.003118210         53,423,897      LLC-loads                                                               (27.03%)
+     3.003118210          6,606,452      LLC-load-misses                  #   12.37% of all LL-cache accesses    (36.10%)
+     3.003118210         13,904,930      dTLB-load-misses                                                        (36.25%)
+     3.003118210          1,899,685      iTLB-load-misses                                                        (36.24%)
+     3.003118210             39,371      minor-faults                                                          
+     3.003118210                  0      major-faults                                                          
+     4.004364259      4,314,219,377      cycles                                                                  (36.19%)
+     4.004364259      6,467,990,674      instructions                     #    1.50  insn per cycle              (45.35%)
+     4.004364259      1,076,230,804      branches                                                                (45.53%)
+     4.004364259         18,851,588      branch-misses                    #    1.75% of all branches             (45.71%)
+     4.004364259      1,607,338,285      L1-dcache-loads                                                         (41.02%)
+     4.004364259         57,586,510      L1-dcache-load-misses            #    3.58% of all L1-dcache accesses   (18.30%)
+     4.004364259    <not supported>      L1-icache-loads                                                       
+     4.004364259         43,092,022      L1-icache-load-misses                                                   (18.32%)
+     4.004364259         14,539,478      LLC-loads                                                               (27.29%)
+     4.004364259            383,698      LLC-load-misses                  #    2.64% of all LL-cache accesses    (36.29%)
+     4.004364259          3,704,383      dTLB-load-misses                                                        (35.99%)
+     4.004364259            955,102      iTLB-load-misses                                                        (36.02%)
+     4.004364259             25,182      minor-faults                                                          
+     4.004364259                  0      major-faults                                                          
+     5.005581024      3,476,505,177      cycles                                                                  (36.37%)
+     5.005581024      5,881,817,031      instructions                     #    1.69  insn per cycle              (45.60%)
+     5.005581024        854,446,496      branches                                                                (45.66%)
+     5.005581024         12,099,316      branch-misses                    #    1.42% of all branches             (45.79%)
+     5.005581024      1,424,124,971      L1-dcache-loads                                                         (40.61%)
+     5.005581024         35,476,017      L1-dcache-load-misses            #    2.49% of all L1-dcache accesses   (18.04%)
+     5.005581024    <not supported>      L1-icache-loads                                                       
+     5.005581024         23,550,625      L1-icache-load-misses                                                   (18.15%)
+     5.005581024          7,343,915      LLC-loads                                                               (27.05%)
+     5.005581024            207,877      LLC-load-misses                  #    2.83% of all LL-cache accesses    (36.12%)
+     5.005581024          1,882,392      dTLB-load-misses                                                        (36.17%)
+     5.005581024            529,877      iTLB-load-misses                                                        (36.18%)
+     5.005581024             14,401      minor-faults                                                          
+     5.005581024                  0      major-faults                                                          
+     6.006831170      4,262,302,312      cycles                                                                  (36.08%)
+     6.006831170      6,441,942,300      instructions                     #    1.51  insn per cycle              (45.13%)
+     6.006831170        877,260,866      branches                                                                (45.26%)
+     6.006831170         20,397,835      branch-misses                    #    2.33% of all branches             (45.44%)
+     6.006831170      1,595,244,191      L1-dcache-loads                                                         (43.50%)
+     6.006831170         54,639,362      L1-dcache-load-misses            #    3.43% of all L1-dcache accesses   (18.40%)
+     6.006831170    <not supported>      L1-icache-loads                                                       
+     6.006831170         43,995,352      L1-icache-load-misses                                                   (18.27%)
+     6.006831170         15,701,123      LLC-loads                                                               (27.31%)
+     6.006831170          1,018,856      LLC-load-misses                  #    6.49% of all LL-cache accesses    (36.33%)
+     6.006831170          3,906,015      dTLB-load-misses                                                        (36.16%)
+     6.006831170            869,212      iTLB-load-misses                                                        (36.09%)
+     6.006831170             14,579      minor-faults                                                          
+     6.006831170                  0      major-faults                                                          
+     7.008056708      4,328,970,759      cycles                                                                  (36.49%)
+     7.008056708      7,026,287,759      instructions                     #    1.62  insn per cycle              (45.53%)
+     7.008056708        968,092,327      branches                                                                (45.43%)
+     7.008056708         18,519,441      branch-misses                    #    1.91% of all branches             (45.33%)
+     7.008056708      1,715,115,625      L1-dcache-loads                                                         (43.00%)
+     7.008056708         51,780,506      L1-dcache-load-misses            #    3.02% of all L1-dcache accesses   (18.10%)
+     7.008056708    <not supported>      L1-icache-loads                                                       
+     7.008056708         34,727,697      L1-icache-load-misses                                                   (18.17%)
+     7.008056708         12,211,647      LLC-loads                                                               (27.29%)
+     7.008056708            433,137      LLC-load-misses                  #    3.55% of all LL-cache accesses    (36.45%)
+     7.008056708          4,211,271      dTLB-load-misses                                                        (36.57%)
+     7.008056708            717,036      iTLB-load-misses                                                        (36.53%)
+     7.008056708             16,683      minor-faults                                                          
+     7.008056708                  0      major-faults                                                          
+     8.009275239      4,314,546,715      cycles                                                                  (36.02%)
+     8.009275239      7,381,538,230      instructions                     #    1.71  insn per cycle              (45.02%)
+     8.009275239      1,089,736,224      branches                                                                (45.21%)
+     8.009275239         14,852,707      branch-misses                    #    1.36% of all branches             (45.28%)
+     8.009275239      1,803,656,797      L1-dcache-loads                                                         (41.64%)
+     8.009275239         43,140,738      L1-dcache-load-misses            #    2.39% of all L1-dcache accesses   (18.36%)
+     8.009275239    <not supported>      L1-icache-loads                                                       
+     8.009275239         31,344,708      L1-icache-load-misses                                                   (18.40%)
+     8.009275239          9,295,666      LLC-loads                                                               (27.56%)
+     8.009275239            135,736      LLC-load-misses                  #    1.46% of all LL-cache accesses    (36.52%)
+     8.009275239          2,503,686      dTLB-load-misses                                                        (36.36%)
+     8.009275239            680,567      iTLB-load-misses                                                        (36.17%)
+     8.009275239             18,638      minor-faults                                                          
+     8.009275239                  1      major-faults                                                          
+     9.010516325      4,312,269,932      cycles                                                                  (36.57%)
+     9.010516325      6,360,987,827      instructions                     #    1.48  insn per cycle              (45.81%)
+     9.010516325        925,689,718      branches                                                                (45.96%)
+     9.010516325         21,264,808      branch-misses                    #    2.30% of all branches             (45.79%)
+     9.010516325      1,565,691,534      L1-dcache-loads                                                         (43.17%)
+     9.010516325         65,609,852      L1-dcache-load-misses            #    4.19% of all L1-dcache accesses   (17.97%)
+     9.010516325    <not supported>      L1-icache-loads                                                       
+     9.010516325         43,758,815      L1-icache-load-misses                                                   (18.02%)
+     9.010516325         16,608,553      LLC-loads                                                               (27.00%)
+     9.010516325          1,045,525      LLC-load-misses                  #    6.30% of all LL-cache accesses    (36.05%)
+     9.010516325          5,150,479      dTLB-load-misses                                                        (36.23%)
+     9.010516325            982,764      iTLB-load-misses                                                        (36.31%)
+     9.010516325             16,657      minor-faults                                                          
+     9.010516325                  0      major-faults                                                          
+    10.011890131      3,793,314,468      cycles                                                                  (36.26%)
+    10.011890131      5,624,851,646      instructions                     #    1.48  insn per cycle              (45.40%)
+    10.011890131      1,025,293,443      branches                                                                (45.40%)
+    10.011890131         16,820,895      branch-misses                    #    1.64% of all branches             (45.30%)
+    10.011890131      1,411,933,527      L1-dcache-loads                                                         (39.60%)
+    10.011890131         45,799,731      L1-dcache-load-misses            #    3.24% of all L1-dcache accesses   (18.19%)
+    10.011890131    <not supported>      L1-icache-loads                                                       
+    10.011890131         41,541,423      L1-icache-load-misses                                                   (18.26%)
+    10.011890131         13,722,598      LLC-loads                                                               (27.42%)
+    10.011890131            500,146      LLC-load-misses                  #    3.64% of all LL-cache accesses    (36.48%)
+    10.011890131          3,806,879      dTLB-load-misses                                                        (36.52%)
+    10.011890131            973,187      iTLB-load-misses                                                        (36.40%)
+    10.011890131             25,847      minor-faults                                                          
+    10.011890131                  0      major-faults                                                          
+    11.013217627      4,216,016,468      cycles                                                                  (35.74%)
+    11.013217627      6,434,785,314      instructions                     #    1.53  insn per cycle              (44.73%)
+    11.013217627      1,119,666,124      branches                                                                (44.98%)
+    11.013217627         15,843,473      branch-misses                    #    1.42% of all branches             (45.17%)
+    11.013217627      1,599,428,014      L1-dcache-loads                                                         (40.09%)
+    11.013217627         52,226,558      L1-dcache-load-misses            #    3.27% of all L1-dcache accesses   (18.64%)
+    11.013217627    <not supported>      L1-icache-loads                                                       
+    11.013217627         43,838,667      L1-icache-load-misses                                                   (18.45%)
+    11.013217627         12,174,925      LLC-loads                                                               (27.55%)
+    11.013217627            439,224      LLC-load-misses                  #    3.61% of all LL-cache accesses    (36.47%)
+    11.013217627          3,486,429      dTLB-load-misses                                                        (36.20%)
+    11.013217627            980,227      iTLB-load-misses                                                        (35.87%)
+    11.013217627             25,630      minor-faults                                                          
+    11.013217627                  0      major-faults                                                          
+    12.014444480      4,299,618,371      cycles                                                                  (36.16%)
+    12.014444480      6,832,348,269      instructions                     #    1.59  insn per cycle              (45.17%)
+    12.014444480      1,225,881,833      branches                                                                (45.13%)
+    12.014444480         15,563,855      branch-misses                    #    1.27% of all branches             (45.27%)
+    12.014444480      1,648,729,043      L1-dcache-loads                                                         (38.40%)
+    12.014444480         51,081,106      L1-dcache-load-misses            #    3.10% of all L1-dcache accesses   (18.50%)
+    12.014444480    <not supported>      L1-icache-loads                                                       
+    12.014444480         38,337,784      L1-icache-load-misses                                                   (18.27%)
+    12.014444480         11,743,339      LLC-loads                                                               (27.30%)
+    12.014444480            159,485      LLC-load-misses                  #    1.36% of all LL-cache accesses    (36.32%)
+    12.014444480          3,167,431      dTLB-load-misses                                                        (36.23%)
+    12.014444480            902,342      iTLB-load-misses                                                        (36.22%)
+    12.014444480             28,293      minor-faults                                                          
+    12.014444480                  0      major-faults                                                          
+    13.015667499      4,297,793,845      cycles                                                                  (36.60%)
+    13.015667499      6,758,746,940      instructions                     #    1.57  insn per cycle              (45.51%)
+    13.015667499      1,193,881,025      branches                                                                (45.26%)
+    13.015667499         15,278,595      branch-misses                    #    1.28% of all branches             (45.01%)
+    13.015667499      1,679,075,839      L1-dcache-loads                                                         (38.96%)
+    13.015667499         50,838,165      L1-dcache-load-misses            #    3.03% of all L1-dcache accesses   (18.24%)
+    13.015667499    <not supported>      L1-icache-loads                                                       
+    13.015667499         36,789,995      L1-icache-load-misses                                                   (18.27%)
+    13.015667499         12,028,389      LLC-loads                                                               (27.50%)
+    13.015667499            196,938      LLC-load-misses                  #    1.64% of all LL-cache accesses    (36.67%)
+    13.015667499          3,214,455      dTLB-load-misses                                                        (36.75%)
+    13.015667499            919,521      iTLB-load-misses                                                        (36.69%)
+    13.015667499             27,536      minor-faults                                                          
+    13.015667499                  0      major-faults                                                          
+    14.016946486      4,291,443,463      cycles                                                                  (36.33%)
+    14.016946486      6,610,611,403      instructions                     #    1.54  insn per cycle              (45.53%)
+    14.016946486      1,113,532,429      branches                                                                (45.45%)
+    14.016946486         16,316,577      branch-misses                    #    1.47% of all branches             (45.52%)
+    14.016946486      1,634,312,448      L1-dcache-loads                                                         (39.88%)
+    14.016946486         50,031,614      L1-dcache-load-misses            #    3.06% of all L1-dcache accesses   (17.95%)
+    14.016946486    <not supported>      L1-icache-loads                                                       
+    14.016946486         42,837,749      L1-icache-load-misses                                                   (18.09%)
+    14.016946486         12,579,759      LLC-loads                                                               (27.30%)
+    14.016946486            310,577      LLC-load-misses                  #    2.47% of all LL-cache accesses    (36.53%)
+    14.016946486          3,461,348      dTLB-load-misses                                                        (36.53%)
+    14.016946486          1,014,849      iTLB-load-misses                                                        (36.44%)
+    14.016946486             23,820      minor-faults                                                          
+    14.016946486                  0      major-faults                                                          
+    15.018176168      3,968,370,197      cycles                                                                  (36.58%)
+    15.018176168      6,505,856,639      instructions                     #    1.64  insn per cycle              (45.57%)
+    15.018176168      1,062,998,978      branches                                                                (45.22%)
+    15.018176168         14,191,179      branch-misses                    #    1.34% of all branches             (45.06%)
+    15.018176168      1,596,070,570      L1-dcache-loads                                                         (38.39%)
+    15.018176168         40,005,335      L1-dcache-load-misses            #    2.51% of all L1-dcache accesses   (18.14%)
+    15.018176168    <not supported>      L1-icache-loads                                                       
+    15.018176168         30,189,048      L1-icache-load-misses                                                   (18.24%)
+    15.018176168          9,066,916      LLC-loads                                                               (27.50%)
+    15.018176168            203,475      LLC-load-misses                  #    2.24% of all LL-cache accesses    (36.74%)
+    15.018176168          2,764,004      dTLB-load-misses                                                        (36.80%)
+    15.018176168            720,965      iTLB-load-misses                                                        (36.84%)
+    15.018176168             22,302      minor-faults                                                          
+    15.018176168                  0      major-faults                                                          
+    16.019431996      4,306,941,256      cycles                                                                  (36.39%)
+    16.019431996      6,955,952,197      instructions                     #    1.62  insn per cycle              (45.46%)
+    16.019431996      1,118,736,728      branches                                                                (45.42%)
+    16.019431996         14,676,876      branch-misses                    #    1.31% of all branches             (45.29%)
+    16.019431996      1,724,880,692      L1-dcache-loads                                                         (38.77%)
+    16.019431996         51,158,098      L1-dcache-load-misses            #    2.97% of all L1-dcache accesses   (18.04%)
+    16.019431996    <not supported>      L1-icache-loads                                                       
+    16.019431996         33,306,021      L1-icache-load-misses                                                   (18.20%)
+    16.019431996          9,962,889      LLC-loads                                                               (27.57%)
+    16.019431996            320,822      LLC-load-misses                  #    3.22% of all LL-cache accesses    (36.63%)
+    16.019431996          2,992,763      dTLB-load-misses                                                        (36.67%)
+    16.019431996            776,519      iTLB-load-misses                                                        (36.63%)
+    16.019431996             23,933      minor-faults                                                          
+    16.019431996                  1      major-faults                                                          
+    17.020652338      4,307,224,478      cycles                                                                  (37.07%)
+    17.020652338      6,859,813,918      instructions                     #    1.59  insn per cycle              (46.16%)
+    17.020652338      1,116,562,026      branches                                                                (45.87%)
+    17.020652338         15,527,656      branch-misses                    #    1.39% of all branches             (45.39%)
+    17.020652338      1,693,444,468      L1-dcache-loads                                                         (38.60%)
+    17.020652338         42,639,233      L1-dcache-load-misses            #    2.52% of all L1-dcache accesses   (17.76%)
+    17.020652338    <not supported>      L1-icache-loads                                                       
+    17.020652338         35,283,080      L1-icache-load-misses                                                   (17.90%)
+    17.020652338         11,382,237      LLC-loads                                                               (27.10%)
+    17.020652338            207,697      LLC-load-misses                  #    1.82% of all LL-cache accesses    (36.41%)
+    17.020652338          3,107,511      dTLB-load-misses                                                        (36.85%)
+    17.020652338            871,966      iTLB-load-misses                                                        (37.07%)
+    17.020652338             23,302      minor-faults                                                          
+    17.020652338                  0      major-faults                                                          
+    18.021888533      4,169,225,099      cycles                                                                  (35.94%)
+    18.021888533      6,465,184,354      instructions                     #    1.55  insn per cycle              (45.07%)
+    18.021888533      1,094,405,018      branches                                                                (45.31%)
+    18.021888533         16,384,469      branch-misses                    #    1.50% of all branches             (45.54%)
+    18.021888533      1,582,716,084      L1-dcache-loads                                                         (40.38%)
+    18.021888533         50,088,145      L1-dcache-load-misses            #    3.16% of all L1-dcache accesses   (18.27%)
+    18.021888533    <not supported>      L1-icache-loads                                                       
+    18.021888533         42,662,189      L1-icache-load-misses                                                   (18.24%)
+    18.021888533         11,582,076      LLC-loads                                                               (27.29%)
+    18.021888533            365,256      LLC-load-misses                  #    3.15% of all LL-cache accesses    (36.32%)
+    18.021888533          3,030,309      dTLB-load-misses                                                        (36.19%)
+    18.021888533            927,065      iTLB-load-misses                                                        (35.94%)
+    18.021888533             24,610      minor-faults                                                          
+    18.021888533                  0      major-faults                                                          
+    19.023139347      4,294,528,044      cycles                                                                  (36.44%)
+    19.023139347      6,781,173,921      instructions                     #    1.58  insn per cycle              (45.35%)
+    19.023139347      1,274,477,950      branches                                                                (45.35%)
+    19.023139347         15,989,839      branch-misses                    #    1.25% of all branches             (45.26%)
+    19.023139347      1,666,647,748      L1-dcache-loads                                                         (38.77%)
+    19.023139347         46,752,623      L1-dcache-load-misses            #    2.81% of all L1-dcache accesses   (18.22%)
+    19.023139347    <not supported>      L1-icache-loads                                                       
+    19.023139347         38,903,005      L1-icache-load-misses                                                   (18.19%)
+    19.023139347         12,072,722      LLC-loads                                                               (27.44%)
+    19.023139347            188,674      LLC-load-misses                  #    1.56% of all LL-cache accesses    (36.45%)
+    19.023139347          3,301,145      dTLB-load-misses                                                        (36.52%)
+    19.023139347            941,735      iTLB-load-misses                                                        (36.56%)
+    19.023139347             29,763      minor-faults                                                          
+    19.023139347                  0      major-faults                                                          
+    20.024367834      4,076,017,475      cycles                                                                  (36.31%)
+    20.024367834      6,222,269,525      instructions                     #    1.53  insn per cycle              (45.45%)
+    20.024367834      1,090,051,235      branches                                                                (45.36%)
+    20.024367834         15,874,205      branch-misses                    #    1.46% of all branches             (45.26%)
+    20.024367834      1,541,483,612      L1-dcache-loads                                                         (40.25%)
+    20.024367834         43,458,108      L1-dcache-load-misses            #    2.82% of all L1-dcache accesses   (18.18%)
+    20.024367834    <not supported>      L1-icache-loads                                                       
+    20.024367834         42,152,640      L1-icache-load-misses                                                   (18.22%)
+    20.024367834         12,995,958      LLC-loads                                                               (27.35%)
+    20.024367834            253,037      LLC-load-misses                  #    1.95% of all LL-cache accesses    (36.48%)
+    20.024367834          3,445,692      dTLB-load-misses                                                        (36.56%)
+    20.024367834          1,022,228      iTLB-load-misses                                                        (36.37%)
+    20.024367834             25,858      minor-faults                                                          
+    20.024367834                  0      major-faults                                                          
+    21.025618776      4,307,906,291      cycles                                                                  (36.93%)
+    21.025618776      6,216,567,168      instructions                     #    1.44  insn per cycle              (45.89%)
+    21.025618776      1,089,291,878      branches                                                                (45.67%)
+    21.025618776         18,280,516      branch-misses                    #    1.68% of all branches             (45.42%)
+    21.025618776      1,559,478,763      L1-dcache-loads                                                         (39.63%)
+    21.025618776         49,476,316      L1-dcache-load-misses            #    3.17% of all L1-dcache accesses   (18.04%)
+    21.025618776    <not supported>      L1-icache-loads                                                       
+    21.025618776         52,421,081      L1-icache-load-misses                                                   (17.88%)
+    21.025618776         14,769,197      LLC-loads                                                               (26.94%)
+    21.025618776            582,011      LLC-load-misses                  #    3.94% of all LL-cache accesses    (36.21%)
+    21.025618776          3,951,574      dTLB-load-misses                                                        (36.54%)
+    21.025618776          1,285,206      iTLB-load-misses                                                        (36.93%)
+    21.025618776             21,072      minor-faults                                                          
+    21.025618776                  0      major-faults                                                          
+    22.026867667      4,215,934,680      cycles                                                                  (36.65%)
+    22.026867667      5,872,177,220      instructions                     #    1.39  insn per cycle              (45.77%)
+    22.026867667      1,124,931,155      branches                                                                (45.71%)
+    22.026867667         17,286,359      branch-misses                    #    1.54% of all branches             (45.51%)
+    22.026867667      1,454,763,374      L1-dcache-loads                                                         (39.89%)
+    22.026867667         46,348,269      L1-dcache-load-misses            #    3.19% of all L1-dcache accesses   (17.95%)
+    22.026867667    <not supported>      L1-icache-loads                                                       
+    22.026867667         49,461,621      L1-icache-load-misses                                                   (18.05%)
+    22.026867667         13,837,624      LLC-loads                                                               (27.14%)
+    22.026867667            831,356      LLC-load-misses                  #    6.01% of all LL-cache accesses    (36.25%)
+    22.026867667          3,813,302      dTLB-load-misses                                                        (36.54%)
+    22.026867667          1,164,084      iTLB-load-misses                                                        (36.57%)
+    22.026867667             26,301      minor-faults                                                          
+    22.026867667                  0      major-faults                                                          
+    23.028238071      4,279,959,231      cycles                                                                  (36.49%)
+    23.028238071      6,258,565,690      instructions                     #    1.46  insn per cycle              (45.65%)
+    23.028238071      1,171,334,838      branches                                                                (45.84%)
+    23.028238071         17,009,605      branch-misses                    #    1.45% of all branches             (45.81%)
+    23.028238071      1,558,197,228      L1-dcache-loads                                                         (38.00%)
+    23.028238071         48,020,739      L1-dcache-load-misses            #    3.08% of all L1-dcache accesses   (18.07%)
+    23.028238071    <not supported>      L1-icache-loads                                                       
+    23.028238071         48,200,312      L1-icache-load-misses                                                   (18.13%)
+    23.028238071         14,522,935      LLC-loads                                                               (27.09%)
+    23.028238071            801,964      LLC-load-misses                  #    5.52% of all LL-cache accesses    (36.13%)
+    23.028238071          3,671,209      dTLB-load-misses                                                        (36.12%)
+    23.028238071          1,157,411      iTLB-load-misses                                                        (36.26%)
+    23.028238071             27,915      minor-faults                                                          
+    23.028238071                  0      major-faults                                                          
+    24.029573086      4,297,251,425      cycles                                                                  (36.40%)
+    24.029573086      6,791,998,533      instructions                     #    1.58  insn per cycle              (45.40%)
+    24.029573086      1,201,426,856      branches                                                                (45.23%)
+    24.029573086         15,899,067      branch-misses                    #    1.32% of all branches             (45.23%)
+    24.029573086      1,679,943,823      L1-dcache-loads                                                         (38.24%)
+    24.029573086         44,099,768      L1-dcache-load-misses            #    2.63% of all L1-dcache accesses   (18.24%)
+    24.029573086    <not supported>      L1-icache-loads                                                       
+    24.029573086         38,921,650      L1-icache-load-misses                                                   (18.16%)
+    24.029573086         12,036,018      LLC-loads                                                               (27.43%)
+    24.029573086            701,937      LLC-load-misses                  #    5.83% of all LL-cache accesses    (36.55%)
+    24.029573086          3,033,516      dTLB-load-misses                                                        (36.53%)
+    24.029573086            913,005      iTLB-load-misses                                                        (36.57%)
+    24.029573086             27,866      minor-faults                                                          
+    24.029573086                  0      major-faults                                                          
+    25.030930686      3,505,743,343      cycles                                                                  (36.24%)
+    25.030930686      5,297,973,649      instructions                     #    1.51  insn per cycle              (45.25%)
+    25.030930686        879,504,503      branches                                                                (45.30%)
+    25.030930686         14,624,445      branch-misses                    #    1.66% of all branches             (45.42%)
+    25.030930686      1,290,225,935      L1-dcache-loads                                                         (40.86%)
+    25.030930686         38,097,666      L1-dcache-load-misses            #    2.95% of all L1-dcache accesses   (18.26%)
+    25.030930686    <not supported>      L1-icache-loads                                                       
+    25.030930686         38,400,068      L1-icache-load-misses                                                   (18.22%)
+    25.030930686         11,210,008      LLC-loads                                                               (27.28%)
+    25.030930686            469,635      LLC-load-misses                  #    4.19% of all LL-cache accesses    (36.31%)
+    25.030930686          2,774,837      dTLB-load-misses                                                        (36.32%)
+    25.030930686            903,874      iTLB-load-misses                                                        (36.35%)
+    25.030930686             18,719      minor-faults                                                          
+    25.030930686                  0      major-faults                                                          
+    26.032184234      4,294,148,504      cycles                                                                  (36.49%)
+    26.032184234      6,624,156,689      instructions                     #    1.54  insn per cycle              (45.49%)
+    26.032184234      1,178,179,039      branches                                                                (45.31%)
+    26.032184234         15,852,232      branch-misses                    #    1.35% of all branches             (45.07%)
+    26.032184234      1,644,154,681      L1-dcache-loads                                                         (38.36%)
+    26.032184234         42,687,768      L1-dcache-load-misses            #    2.60% of all L1-dcache accesses   (18.12%)
+    26.032184234    <not supported>      L1-icache-loads                                                       
+    26.032184234         36,979,580      L1-icache-load-misses                                                   (18.24%)
+    26.032184234         12,085,798      LLC-loads                                                               (27.52%)
+    26.032184234          1,063,914      LLC-load-misses                  #    8.80% of all LL-cache accesses    (36.73%)
+    26.032184234          3,328,573      dTLB-load-misses                                                        (36.81%)
+    26.032184234            954,818      iTLB-load-misses                                                        (36.77%)
+    26.032184234             26,738      minor-faults                                                          
+    26.032184234                  0      major-faults                                                          
+#           time             counts unit events
+    27.033418690      4,296,193,521      cycles                                                                  (36.37%)
+    27.033418690      6,833,448,656      instructions                     #    1.59  insn per cycle              (45.33%)
+    27.033418690      1,213,096,237      branches                                                                (45.07%)
+    27.033418690         15,965,019      branch-misses                    #    1.32% of all branches             (44.97%)
+    27.033418690      1,671,603,931      L1-dcache-loads                                                         (38.84%)
+    27.033418690         44,802,621      L1-dcache-load-misses            #    2.68% of all L1-dcache accesses   (18.17%)
+    27.033418690    <not supported>      L1-icache-loads                                                       
+    27.033418690         37,122,054      L1-icache-load-misses                                                   (18.30%)
+    27.033418690         10,961,277      LLC-loads                                                               (27.56%)
+    27.033418690            757,146      LLC-load-misses                  #    6.91% of all LL-cache accesses    (36.82%)
+    27.033418690          3,339,880      dTLB-load-misses                                                        (36.86%)
+    27.033418690            882,595      iTLB-load-misses                                                        (36.69%)
+    27.033418690             26,373      minor-faults                                                          
+    27.033418690                  0      major-faults                                                          
+    28.034723297      4,301,580,497      cycles                                                                  (36.54%)
+    28.034723297      6,894,970,957      instructions                     #    1.60  insn per cycle              (45.56%)
+    28.034723297      1,182,161,026      branches                                                                (45.49%)
+    28.034723297         15,508,888      branch-misses                    #    1.31% of all branches             (45.32%)
+    28.034723297      1,691,652,661      L1-dcache-loads                                                         (38.02%)
+    28.034723297         45,030,020      L1-dcache-load-misses            #    2.66% of all L1-dcache accesses   (18.24%)
+    28.034723297    <not supported>      L1-icache-loads                                                       
+    28.034723297         37,356,829      L1-icache-load-misses                                                   (18.22%)
+    28.034723297         10,991,345      LLC-loads                                                               (27.27%)
+    28.034723297            357,055      LLC-load-misses                  #    3.25% of all LL-cache accesses    (36.37%)
+    28.034723297          3,300,363      dTLB-load-misses                                                        (36.44%)
+    28.034723297            881,147      iTLB-load-misses                                                        (36.44%)
+    28.034723297             26,598      minor-faults                                                          
+    28.034723297                  0      major-faults                                                          
+    29.035972496      4,298,465,599      cycles                                                                  (36.28%)
+    29.035972496      6,635,053,103      instructions                     #    1.54  insn per cycle              (45.27%)
+    29.035972496      1,045,520,498      branches                                                                (45.12%)
+    29.035972496         17,261,254      branch-misses                    #    1.65% of all branches             (45.19%)
+    29.035972496      1,643,791,212      L1-dcache-loads                                                         (40.56%)
+    29.035972496         41,241,487      L1-dcache-load-misses            #    2.51% of all L1-dcache accesses   (18.22%)
+    29.035972496    <not supported>      L1-icache-loads                                                       
+    29.035972496         45,214,884      L1-icache-load-misses                                                   (18.26%)
+    29.035972496         13,002,856      LLC-loads                                                               (27.50%)
+    29.035972496            324,162      LLC-load-misses                  #    2.49% of all LL-cache accesses    (36.66%)
+    29.035972496          2,967,830      dTLB-load-misses                                                        (36.59%)
+    29.035972496          1,068,825      iTLB-load-misses                                                        (36.49%)
+    29.035972496             18,545      minor-faults                                                          
+    29.035972496                  0      major-faults                                                          
+    30.037302103      3,646,295,455      cycles                                                                  (36.36%)
+    30.037302103      5,868,370,798      instructions                     #    1.61  insn per cycle              (45.52%)
+    30.037302103        932,670,582      branches                                                                (45.76%)
+    30.037302103         13,345,726      branch-misses                    #    1.43% of all branches             (45.95%)
+    30.037302103      1,445,279,409      L1-dcache-loads                                                         (40.53%)
+    30.037302103         36,808,971      L1-dcache-load-misses            #    2.55% of all L1-dcache accesses   (18.02%)
+    30.037302103    <not supported>      L1-icache-loads                                                       
+    30.037302103         31,266,999      L1-icache-load-misses                                                   (18.11%)
+    30.037302103          8,925,803      LLC-loads                                                               (27.05%)
+    30.037302103            214,030      LLC-load-misses                  #    2.40% of all LL-cache accesses    (35.99%)
+    30.037302103          2,305,076      dTLB-load-misses                                                        (36.03%)
+    30.037302103            689,151      iTLB-load-misses                                                        (36.15%)
+    30.037302103             18,048      minor-faults                                                          
+    30.037302103                  0      major-faults                                                          
+    31.038695982      4,212,157,075      cycles                                                                  (36.02%)
+    31.038695982      6,137,620,607      instructions                     #    1.46  insn per cycle              (45.18%)
+    31.038695982      1,138,935,298      branches                                                                (45.33%)
+    31.038695982         17,314,566      branch-misses                    #    1.52% of all branches             (45.52%)
+    31.038695982      1,502,201,660      L1-dcache-loads                                                         (39.46%)
+    31.038695982         47,410,625      L1-dcache-load-misses            #    3.16% of all L1-dcache accesses   (18.29%)
+    31.038695982    <not supported>      L1-icache-loads                                                       
+    31.038695982         49,240,718      L1-icache-load-misses                                                   (18.37%)
+    31.038695982         14,199,989      LLC-loads                                                               (27.43%)
+    31.038695982            521,158      LLC-load-misses                  #    3.67% of all LL-cache accesses    (36.35%)
+    31.038695982          3,336,882      dTLB-load-misses                                                        (36.19%)
+    31.038695982          1,171,682      iTLB-load-misses                                                        (36.06%)
+    31.038695982             23,709      minor-faults                                                          
+    31.038695982                  0      major-faults                                                          
+    32.040053789      6,355,566,064      cycles                                                                  (36.41%)
+    32.040053789      8,842,662,240      instructions                     #    1.39  insn per cycle              (45.47%)
+    32.040053789      1,666,607,160      branches                                                                (45.45%)
+    32.040053789         33,312,511      branch-misses                    #    2.00% of all branches             (45.35%)
+    32.040053789      2,287,561,495      L1-dcache-loads                                                         (40.17%)
+    32.040053789         87,687,193      L1-dcache-load-misses            #    3.83% of all L1-dcache accesses   (18.21%)
+    32.040053789    <not supported>      L1-icache-loads                                                       
+    32.040053789         72,852,612      L1-icache-load-misses                                                   (18.21%)
+    32.040053789         26,417,809      LLC-loads                                                               (27.28%)
+    32.040053789          2,197,145      LLC-load-misses                  #    8.32% of all LL-cache accesses    (36.38%)
+    32.040053789          6,332,745      dTLB-load-misses                                                        (36.44%)
+    32.040053789          1,583,951      iTLB-load-misses                                                        (36.43%)
+    32.040053789             42,823      minor-faults                                                          
+    32.040053789                  3      major-faults                                                          
+    33.041456830      5,928,643,806      cycles                                                                  (36.69%)
+    33.041456830      8,150,556,903      instructions                     #    1.37  insn per cycle              (45.83%)
+    33.041456830      1,517,164,782      branches                                                                (45.57%)
+    33.041456830         25,835,712      branch-misses                    #    1.70% of all branches             (45.31%)
+    33.041456830      2,218,778,857      L1-dcache-loads                                                         (38.66%)
+    33.041456830         79,081,884      L1-dcache-load-misses            #    3.56% of all L1-dcache accesses   (18.02%)
+    33.041456830    <not supported>      L1-icache-loads                                                       
+    33.041456830         53,248,305      L1-icache-load-misses                                                   (18.13%)
+    33.041456830         23,252,660      LLC-loads                                                               (27.06%)
+    33.041456830          4,261,816      LLC-load-misses                  #   18.33% of all LL-cache accesses    (36.36%)
+    33.041456830          5,740,684      dTLB-load-misses                                                        (36.63%)
+    33.041456830          1,160,356      iTLB-load-misses                                                        (36.76%)
+    33.041456830             31,869      minor-faults                                                          
+    33.041456830                  0      major-faults                                                          
+    34.042832029      4,295,562,726      cycles                                                                  (35.88%)
+    34.042832029      5,990,110,055      instructions                     #    1.39  insn per cycle              (44.88%)
+    34.042832029      1,069,811,889      branches                                                                (44.87%)
+    34.042832029         16,738,342      branch-misses                    #    1.56% of all branches             (45.31%)
+    34.042832029      1,468,933,913      L1-dcache-loads                                                         (40.28%)
+    34.042832029         46,898,145      L1-dcache-load-misses            #    3.19% of all L1-dcache accesses   (18.27%)
+    34.042832029    <not supported>      L1-icache-loads                                                       
+    34.042832029         48,077,527      L1-icache-load-misses                                                   (18.12%)
+    34.042832029         14,150,566      LLC-loads                                                               (27.33%)
+    34.042832029          1,609,525      LLC-load-misses                  #   11.37% of all LL-cache accesses    (36.49%)
+    34.042832029          3,556,759      dTLB-load-misses                                                        (36.41%)
+    34.042832029          1,173,258      iTLB-load-misses                                                        (36.23%)
+    34.042832029             24,482      minor-faults                                                          
+    34.042832029                  0      major-faults                                                          
+    35.044178347      3,794,359,097      cycles                                                                  (35.95%)
+    35.044178347      5,896,940,436      instructions                     #    1.55  insn per cycle              (44.94%)
+    35.044178347      1,005,888,593      branches                                                                (44.93%)
+    35.044178347         13,626,281      branch-misses                    #    1.35% of all branches             (45.01%)
+    35.044178347      1,427,274,553      L1-dcache-loads                                                         (41.82%)
+    35.044178347         36,951,592      L1-dcache-load-misses            #    2.59% of all L1-dcache accesses   (18.26%)
+    35.044178347    <not supported>      L1-icache-loads                                                       
+    35.044178347         30,258,738      L1-icache-load-misses                                                   (18.42%)
+    35.044178347         10,491,556      LLC-loads                                                               (27.70%)
+    35.044178347          1,191,824      LLC-load-misses                  #   11.36% of all LL-cache accesses    (36.79%)
+    35.044178347          2,805,903      dTLB-load-misses                                                        (36.68%)
+    35.044178347            748,380      iTLB-load-misses                                                        (36.35%)
+    35.044178347             21,240      minor-faults                                                          
+    35.044178347                  1      major-faults                                                          
+    36.045551841      4,300,451,021      cycles                                                                  (35.87%)
+    36.045551841      6,810,318,926      instructions                     #    1.58  insn per cycle              (45.07%)
+    36.045551841      1,159,819,444      branches                                                                (45.32%)
+    36.045551841         15,861,317      branch-misses                    #    1.37% of all branches             (45.49%)
+    36.045551841      1,620,972,865      L1-dcache-loads                                                         (42.25%)
+    36.045551841         38,607,269      L1-dcache-load-misses            #    2.38% of all L1-dcache accesses   (18.39%)
+    36.045551841    <not supported>      L1-icache-loads                                                       
+    36.045551841         34,619,572      L1-icache-load-misses                                                   (18.21%)
+    36.045551841         12,580,806      LLC-loads                                                               (27.28%)
+    36.045551841          1,066,373      LLC-load-misses                  #    8.48% of all LL-cache accesses    (36.30%)
+    36.045551841          2,791,863      dTLB-load-misses                                                        (36.12%)
+    36.045551841            821,188      iTLB-load-misses                                                        (35.94%)
+    36.045551841             24,682      minor-faults                                                          
+    36.045551841                  0      major-faults                                                          
+    37.046935600      4,299,330,566      cycles                                                                  (36.10%)
+    37.046935600      6,786,180,374      instructions                     #    1.58  insn per cycle              (45.64%)
+    37.046935600      1,134,601,803      branches                                                                (46.47%)
+    37.046935600         15,895,395      branch-misses                    #    1.40% of all branches             (46.83%)
+    37.046935600      1,648,417,317      L1-dcache-loads                                                         (41.19%)
+    37.046935600         43,693,820      L1-dcache-load-misses            #    2.65% of all L1-dcache accesses   (18.01%)
+    37.046935600    <not supported>      L1-icache-loads                                                       
+    37.046935600         37,099,378      L1-icache-load-misses                                                   (17.81%)
+    37.046935600         10,397,846      LLC-loads                                                               (26.53%)
+    37.046935600            664,353      LLC-load-misses                  #    6.39% of all LL-cache accesses    (35.25%)
+    37.046935600          2,609,453      dTLB-load-misses                                                        (35.17%)
+    37.046935600            750,335      iTLB-load-misses                                                        (35.40%)
+    37.046935600             23,100      minor-faults                                                          
+    37.046935600                  0      major-faults                                                          
+    38.048227237      3,978,160,168      cycles                                                                  (37.07%)
+    38.048227237      5,438,848,072      instructions                     #    1.37  insn per cycle              (46.08%)
+    38.048227237        905,961,002      branches                                                                (46.04%)
+    38.048227237         17,386,783      branch-misses                    #    1.92% of all branches             (45.69%)
+    38.048227237      1,381,740,219      L1-dcache-loads                                                         (39.25%)
+    38.048227237         48,233,112      L1-dcache-load-misses            #    3.49% of all L1-dcache accesses   (17.84%)
+    38.048227237    <not supported>      L1-icache-loads                                                       
+    38.048227237         53,101,721      L1-icache-load-misses                                                   (17.76%)
+    38.048227237         12,531,721      LLC-loads                                                               (26.79%)
+    38.048227237            915,121      LLC-load-misses                  #    7.30% of all LL-cache accesses    (35.90%)
+    38.048227237          3,815,640      dTLB-load-misses                                                        (36.46%)
+    38.048227237          1,216,680      iTLB-load-misses                                                        (36.96%)
+    38.048227237             18,452      minor-faults                                                          
+    38.048227237                  0      major-faults                                                          
+    39.049478346      4,213,671,381      cycles                                                                  (36.73%)
+    39.049478346      6,382,609,712      instructions                     #    1.51  insn per cycle              (45.68%)
+    39.049478346      1,092,573,504      branches                                                                (45.30%)
+    39.049478346         14,728,718      branch-misses                    #    1.35% of all branches             (44.99%)
+    39.049478346      1,589,911,379      L1-dcache-loads                                                         (37.29%)
+    39.049478346         50,842,677      L1-dcache-load-misses            #    3.20% of all L1-dcache accesses   (18.11%)
+    39.049478346    <not supported>      L1-icache-loads                                                       
+    39.049478346         35,977,698      L1-icache-load-misses                                                   (18.03%)
+    39.049478346         10,445,048      LLC-loads                                                               (27.42%)
+    39.049478346          1,361,722      LLC-load-misses                  #   13.04% of all LL-cache accesses    (36.67%)
+    39.049478346          3,646,619      dTLB-load-misses                                                        (36.89%)
+    39.049478346            863,572      iTLB-load-misses                                                        (37.09%)
+    39.049478346             26,326      minor-faults                                                          
+    39.049478346                  0      major-faults                                                          
+    40.050904134      3,567,249,600      cycles                                                                  (36.45%)
+    40.050904134      5,310,666,379      instructions                     #    1.49  insn per cycle              (45.34%)
+    40.050904134        997,450,652      branches                                                                (45.12%)
+    40.050904134         13,112,798      branch-misses                    #    1.31% of all branches             (44.98%)
+    40.050904134      1,308,891,617      L1-dcache-loads                                                         (39.16%)
+    40.050904134         35,105,784      L1-dcache-load-misses            #    2.68% of all L1-dcache accesses   (18.51%)
+    40.050904134    <not supported>      L1-icache-loads                                                       
+    40.050904134         31,074,199      L1-icache-load-misses                                                   (18.39%)
+    40.050904134         11,688,716      LLC-loads                                                               (27.48%)
+    40.050904134          1,132,391      LLC-load-misses                  #    9.69% of all LL-cache accesses    (36.62%)
+    40.050904134          2,872,756      dTLB-load-misses                                                        (36.50%)
+    40.050904134            841,730      iTLB-load-misses                                                        (36.44%)
+    40.050904134             23,421      minor-faults                                                          
+    40.050904134                  0      major-faults                                                          
+    41.052273339      4,289,152,945      cycles                                                                  (35.74%)
+    41.052273339      6,498,925,165      instructions                     #    1.52  insn per cycle              (44.84%)
+    41.052273339      1,197,353,716      branches                                                                (45.00%)
+    41.052273339         16,033,400      branch-misses                    #    1.34% of all branches             (45.32%)
+    41.052273339      1,630,975,706      L1-dcache-loads                                                         (38.88%)
+    41.052273339         46,524,870      L1-dcache-load-misses            #    2.85% of all L1-dcache accesses   (18.38%)
+    41.052273339    <not supported>      L1-icache-loads                                                       
+    41.052273339         41,571,595      L1-icache-load-misses                                                   (18.44%)
+    41.052273339         12,842,623      LLC-loads                                                               (27.63%)
+    41.052273339            993,406      LLC-load-misses                  #    7.74% of all LL-cache accesses    (36.63%)
+    41.052273339          3,407,411      dTLB-load-misses                                                        (36.30%)
+    41.052273339            992,701      iTLB-load-misses                                                        (36.02%)
+    41.052273339             28,230      minor-faults                                                          
+    41.052273339                  0      major-faults                                                          
+    42.053616272      4,290,197,319      cycles                                                                  (36.71%)
+    42.053616272      6,492,022,986      instructions                     #    1.51  insn per cycle              (45.92%)
+    42.053616272      1,186,012,267      branches                                                                (45.90%)
+    42.053616272         15,403,858      branch-misses                    #    1.30% of all branches             (45.94%)
+    42.053616272      1,614,224,835      L1-dcache-loads                                                         (37.69%)
+    42.053616272         44,911,067      L1-dcache-load-misses            #    2.78% of all L1-dcache accesses   (17.73%)
+    42.053616272    <not supported>      L1-icache-loads                                                       
+    42.053616272         38,175,612      L1-icache-load-misses                                                   (17.59%)
+    42.053616272         11,181,692      LLC-loads                                                               (26.80%)
+    42.053616272            854,752      LLC-load-misses                  #    7.64% of all LL-cache accesses    (35.96%)
+    42.053616272          3,778,447      dTLB-load-misses                                                        (36.32%)
+    42.053616272            956,657      iTLB-load-misses                                                        (36.75%)
+    42.053616272             28,577      minor-faults                                                          
+    42.053616272                  0      major-faults                                                          
+    43.055030081      4,289,489,069      cycles                                                                  (36.62%)
+    43.055030081      6,413,588,203      instructions                     #    1.50  insn per cycle              (45.69%)
+    43.055030081      1,157,937,280      branches                                                                (45.80%)
+    43.055030081         15,080,803      branch-misses                    #    1.30% of all branches             (45.56%)
+    43.055030081      1,590,886,330      L1-dcache-loads                                                         (37.06%)
+    43.055030081         57,787,072      L1-dcache-load-misses            #    3.63% of all L1-dcache accesses   (18.16%)
+    43.055030081    <not supported>      L1-icache-loads                                                       
+    43.055030081         38,611,491      L1-icache-load-misses                                                   (18.05%)
+    43.055030081         10,810,763      LLC-loads                                                               (26.98%)
+    43.055030081          1,604,658      LLC-load-misses                  #   14.84% of all LL-cache accesses    (36.05%)
+    43.055030081          4,089,415      dTLB-load-misses                                                        (36.29%)
+    43.055030081            944,763      iTLB-load-misses                                                        (36.47%)
+    43.055030081             27,970      minor-faults                                                          
+    43.055030081                  0      major-faults                                                          
+    44.056359754      4,244,451,493      cycles                                                                  (36.59%)
+    44.056359754      5,120,035,179      instructions                     #    1.21  insn per cycle              (45.72%)
+    44.056359754        915,009,555      branches                                                                (45.81%)
+    44.056359754         21,429,062      branch-misses                    #    2.34% of all branches             (45.69%)
+    44.056359754      1,302,781,579      L1-dcache-loads                                                         (40.32%)
+    44.056359754         56,032,006      L1-dcache-load-misses            #    4.30% of all L1-dcache accesses   (18.09%)
+    44.056359754    <not supported>      L1-icache-loads                                                       
+    44.056359754         74,073,579      L1-icache-load-misses                                                   (18.02%)
+    44.056359754         18,096,954      LLC-loads                                                               (27.10%)
+    44.056359754          1,015,090      LLC-load-misses                  #    5.61% of all LL-cache accesses    (36.10%)
+    44.056359754          4,857,190      dTLB-load-misses                                                        (36.22%)
+    44.056359754          1,827,520      iTLB-load-misses                                                        (36.54%)
+    44.056359754             17,404      minor-faults                                                          
+    44.056359754                  0      major-faults                                                          
+    45.057630096      3,905,765,405      cycles                                                                  (36.56%)
+    45.057630096      5,803,927,415      instructions                     #    1.49  insn per cycle              (45.56%)
+    45.057630096      1,123,406,259      branches                                                                (45.32%)
+    45.057630096         15,014,418      branch-misses                    #    1.34% of all branches             (45.25%)
+    45.057630096      1,435,558,742      L1-dcache-loads                                                         (37.21%)
+    45.057630096         36,574,355      L1-dcache-load-misses            #    2.55% of all L1-dcache accesses   (18.05%)
+    45.057630096    <not supported>      L1-icache-loads                                                       
+    45.057630096         37,807,440      L1-icache-load-misses                                                   (18.04%)
+    45.057630096         11,512,389      LLC-loads                                                               (27.31%)
+    45.057630096          1,622,887      LLC-load-misses                  #   14.10% of all LL-cache accesses    (36.60%)
+    45.057630096          3,511,002      dTLB-load-misses                                                        (36.69%)
+    45.057630096            907,031      iTLB-load-misses                                                        (36.79%)
+    45.057630096             28,288      minor-faults                                                          
+    45.057630096                  2      major-faults                                                          
+    46.058788399      4,289,546,132      cycles                                                                  (36.52%)
+    46.058788399      6,600,730,127      instructions                     #    1.54  insn per cycle              (45.64%)
+    46.058788399        992,532,360      branches                                                                (45.50%)
+    46.058788399         16,515,401      branch-misses                    #    1.66% of all branches             (45.46%)
+    46.058788399      1,619,269,062      L1-dcache-loads                                                         (40.51%)
+    46.058788399         35,509,667      L1-dcache-load-misses            #    2.19% of all L1-dcache accesses   (18.09%)
+    46.058788399    <not supported>      L1-icache-loads                                                       
+    46.058788399         40,079,372      L1-icache-load-misses                                                   (17.99%)
+    46.058788399         10,823,514      LLC-loads                                                               (27.08%)
+    46.058788399          1,324,129      LLC-load-misses                  #   12.23% of all LL-cache accesses    (36.24%)
+    46.058788399          2,866,952      dTLB-load-misses                                                        (36.45%)
+    46.058788399            864,133      iTLB-load-misses                                                        (36.48%)
+    46.058788399             17,636      minor-faults                                                          
+    46.058788399                  0      major-faults                                                          
+    47.060133968      4,212,249,242      cycles                                                                  (36.81%)
+    47.060133968      6,392,131,773      instructions                     #    1.52  insn per cycle              (45.82%)
+    47.060133968        971,800,917      branches                                                                (45.69%)
+    47.060133968         17,130,253      branch-misses                    #    1.76% of all branches             (45.49%)
+    47.060133968      1,566,102,200      L1-dcache-loads                                                         (40.92%)
+    47.060133968         36,882,518      L1-dcache-load-misses            #    2.36% of all L1-dcache accesses   (18.06%)
+    47.060133968    <not supported>      L1-icache-loads                                                       
+    47.060133968         42,792,868      L1-icache-load-misses                                                   (18.04%)
+    47.060133968         10,917,344      LLC-loads                                                               (27.14%)
+    47.060133968          1,238,614      LLC-load-misses                  #   11.35% of all LL-cache accesses    (36.25%)
+    47.060133968          3,003,072      dTLB-load-misses                                                        (36.45%)
+    47.060133968            924,339      iTLB-load-misses                                                        (36.72%)
+    47.060133968             16,118      minor-faults                                                          
+    47.060133968                  0      major-faults                                                          
+    48.060785920      4,079,556,260      cycles                                                                  (35.79%)
+    48.060785920      6,286,552,585      instructions                     #    1.54  insn per cycle              (44.47%)
+    48.060785920        964,092,306      branches                                                                (44.17%)
+    48.060785920         14,413,018      branch-misses                    #    1.49% of all branches             (44.20%)
+    48.060785920      1,524,018,627      L1-dcache-loads                                                         (42.16%)
+    48.060785920         44,154,328      L1-dcache-load-misses            #    2.90% of all L1-dcache accesses   (18.71%)
+    48.060785920    <not supported>      L1-icache-loads                                                       
+    48.060785920         34,834,763      L1-icache-load-misses                                                   (18.91%)
+    48.060785920         11,105,067      LLC-loads                                                               (28.23%)
+    48.060785920          1,409,628      LLC-load-misses                  #   12.69% of all LL-cache accesses    (37.43%)
+    48.060785920          2,613,748      dTLB-load-misses                                                        (37.09%)
+    48.060785920            823,851      iTLB-load-misses                                                        (36.47%)
+    48.060785920             18,743      minor-faults                                                          
+    48.060785920                  0      major-faults                                                          
+    49.062030527      4,001,104,322      cycles                                                                  (36.72%)
+    49.062030527      5,981,326,787      instructions                     #    1.49  insn per cycle              (46.06%)
+    49.062030527        991,978,323      branches                                                                (46.30%)
+    49.062030527         15,089,275      branch-misses                    #    1.52% of all branches             (46.23%)
+    49.062030527      1,474,477,814      L1-dcache-loads                                                         (39.14%)
+    49.062030527         38,210,513      L1-dcache-load-misses            #    2.59% of all L1-dcache accesses   (17.75%)
+    49.062030527    <not supported>      L1-icache-loads                                                       
+    49.062030527         39,305,784      L1-icache-load-misses                                                   (17.72%)
+    49.062030527         10,131,507      LLC-loads                                                               (26.74%)
+    49.062030527          1,208,579      LLC-load-misses                  #   11.93% of all LL-cache accesses    (35.79%)
+    49.062030527          3,135,447      dTLB-load-misses                                                        (36.03%)
+    49.062030527            878,222      iTLB-load-misses                                                        (36.41%)
+    49.062030527             21,896      minor-faults                                                          
+    49.062030527                  0      major-faults                                                          
+    50.062800724      1,812,354,846      cycles                                                                  (35.05%)
+    50.062800724      2,639,591,442      instructions                     #    1.46  insn per cycle              (43.44%)
+    50.062800724        473,891,294      branches                                                                (42.93%)
+    50.062800724          5,931,232      branch-misses                    #    1.25% of all branches             (43.11%)
+    50.062800724        629,482,577      L1-dcache-loads                                                         (39.64%)
+    50.062800724         24,006,799      L1-dcache-load-misses            #    3.81% of all L1-dcache accesses   (19.16%)
+    50.062800724    <not supported>      L1-icache-loads                                                       
+    50.062800724         17,151,729      L1-icache-load-misses                                                   (19.68%)
+    50.062800724          5,484,814      LLC-loads                                                               (29.44%)
+    50.062800724          1,111,169      LLC-load-misses                  #   20.26% of all LL-cache accesses    (38.63%)
+    50.062800724          1,448,521      dTLB-load-misses                                                        (37.73%)
+    50.062800724            441,726      iTLB-load-misses                                                        (36.42%)
+    50.062800724             11,991      minor-faults                                                          
+    50.062800724                  0      major-faults                                                          
