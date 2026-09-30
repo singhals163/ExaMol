@@ -362,7 +362,8 @@ class NFPScorer(MultiFidelityScorer):
                 steps_per_exec: int = 1,
                 patience: int = None,
                 timeout: float = None,
-                verbose: bool = False) -> tuple[list[np.ndarray], dict]:
+                verbose: bool = False,
+                reset_scale: bool = True) -> tuple[list[np.ndarray], dict]:
         """Retrain the scorer based on new training records
 
         Args:
@@ -379,6 +380,8 @@ class NFPScorer(MultiFidelityScorer):
             patience: Number of epochs without improvement before terminating training. Default is 10% of ``num_epochs``
             timeout: Maximum training time in seconds
             verbose: Whether to print training information to screen
+            reset_scale: Whether to reset the output scaling layer to the mean and standard deviation of the training data.
+                Set to ``False`` when warm-starting a model that has already been trained
         Returns:
             Message defining how to update the model
         """
@@ -422,6 +425,8 @@ class NFPScorer(MultiFidelityScorer):
 
         # Define initial guesses for the "scaling" later
         try:
+            if not reset_scale:
+                raise ValueError('Keeping the scaling from the previous model')
             output_data = np.array(output_data)
             output_mean = np.nanmean(output_data, axis=0)
             outputs_std = np.clip(np.nanstd(output_data, axis=0), 1e-6, a_max=None)
