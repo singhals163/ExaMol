@@ -17,10 +17,17 @@ Does retraining only on new data (constant cost per round) match retraining on e
 | `paper-section.md` | Write-up of both results with the numbers |
 | `figures/`, `analysis/` | Generated figures and metric tables |
 
-Campaign outputs (`runs/`, `logs/`) and the precomputed simulation records are not tracked: they
-run to several GB. `pools/dev-snapshot/ground-truth.csv` and `search-space.smi` are kept, since they
-define the search problem; regenerate `results.jsonl` with `experiments/precompute/run_precompute.py`
-and `make_pool.py`.
+Campaign outputs (`runs/`, `logs/`) are not tracked: they run to several GB. The simulation data is
+tracked in compressed form:
+
+| File | What it holds |
+|---|---|
+| `../precompute/data/energies.csv` | Oxidation potential and runtime for all 10,000 attempted molecules (6,647 succeeded) |
+| `../precompute/data/results.jsonl.gz` | Raw records: relaxed geometries, all energies, per-step timings |
+| `pools/dev-snapshot/results.jsonl.gz` | The 3,286-molecule subset the campaigns replay |
+| `pools/dev-snapshot/ground-truth.csv` | Key, SMILES, potential and simulation time per pool molecule |
+
+Decompress with `gunzip -k` before running campaigns; `ReplaySimulator` reads the plain `.jsonl`.
 
 ## Reproducing
 
