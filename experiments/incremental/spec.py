@@ -19,10 +19,25 @@ Configure with environment variables, then run ``examol run spec.py:spec`` from 
     EPOCHS          Maximum training epochs per round (default: 32)
     LR              Learning rate for training (default: 1e-3)
     REPLAY          Incremental only: how many earlier molecules to mix into each round (default: 0)
+    RETRAIN_FROM_SCRATCH  Whether the scorer reinitializes model weights every round instead of warm-starting
+                    from the previous round's weights. Default: True for full, False for incremental (i.e. the
+                    normal warm-started incremental policy). Set to true to run incremental's data-selection
+                    policy (train on only the newest batch) with weights reinitialized from scratch each round.
     TIME_SCALE      Multiplier on recorded simulation times (default: 1)
+    POLICY          standard | probe_backoff (default: standard). probe_backoff freezes retraining once
+                    validation loss stays below LOSS_THRESHOLD for CONSECUTIVE_TO_FREEZE rounds, then
+                    probes (retrains) every PROBE_INITIAL new results, backing that period off by
+                    PROBE_BACKOFF (capped at PROBE_MAX) each time the probe stays converged, and returns
+                    to the normal schedule the first time a probe is not converged.
+    LOSS_THRESHOLD        probe_backoff only: validation-loss (MSE) convergence threshold (default: 0.15)
+    CONSECUTIVE_TO_FREEZE probe_backoff only: consecutive converged rounds before freezing (default: 2)
+    PROBE_INITIAL         probe_backoff only: initial probe period, I0 (default: 32)
+    PROBE_BACKOFF         probe_backoff only: multiplier applied to the probe period (default: 1.5)
+    PROBE_MAX             probe_backoff only: cap on the probe period (default: 128)
     RUN_NAME        Name of the run directory under ``runs/`` (default: derived from settings)
 """
 import json
+import inspect
 import os
 import random
 import shutil
@@ -39,6 +54,7 @@ from examol.solution import SingleFidelityActiveLearning
 from examol.specify import ExaMolSpecification
 from examol.start.base import Starter
 from examol.steer.incremental import IncrementalThinker
+from examol.steer.probe_backoff import ProbeBackoffThinker
 from examol.store.recipes import RedoxEnergy
 
 # Settings
@@ -57,12 +73,24 @@ epochs = int(os.environ.get('EPOCHS', 32))
 learning_rate = float(os.environ.get('LR', 1e-3))
 replay_size = int(os.environ.get('REPLAY', 0))
 time_scale = float(os.environ.get('TIME_SCALE', 1))
+_retrain_from_scratch_env = os.environ.get('RETRAIN_FROM_SCRATCH')
+retrain_from_scratch = (not incremental) if _retrain_from_scratch_env is None else _retrain_from_scratch_env.lower() in ('1', 'true', 'yes')
+policy = os.environ.get('POLICY', 'standard')
+assert policy in ('standard', 'probe_backoff'), f'Unknown policy: {policy}'
+loss_threshold = float(os.environ.get('LOSS_THRESHOLD', 0.15))
+consecutive_to_freeze = int(os.environ.get('CONSECUTIVE_TO_FREEZE', 2))
+probe_initial = int(os.environ.get('PROBE_INITIAL', 32))
+probe_backoff = float(os.environ.get('PROBE_BACKOFF', 1.5))
+probe_max = int(os.environ.get('PROBE_MAX', 128))
 
 my_path = Path().absolute()  # ExaMol runs specs with exec, so __file__ is unavailable. Run from this directory
 pool_dir = my_path / 'pools' / pool
 run_name = os.environ.get('RUN_NAME', f'{pool}_{mode}_n{num_to_run}_k{retrain_every}_w{workers}_ts{time_scale:g}'
                           + (f'_r{replay_size}' if replay_size else '') + (f'_lr{learning_rate:g}' if learning_rate != 1e-3 else '')
-                          + (f'_e{epochs}' if epochs != 32 else '') + f'_s{seed}')
+                          + (f'_e{epochs}' if epochs != 32 else '')
+                          + ('_scratch' if retrain_from_scratch != (not incremental) else '')
+                          + (f'_freeze-t{loss_threshold:g}-c{consecutive_to_freeze}-i{probe_initial}-b{probe_backoff:g}-m{probe_max}'
+                             if policy == 'probe_backoff' else '') + f'_s{seed}')
 run_dir = my_path / 'runs' / run_name
 if run_dir.is_dir():
     shutil.rmtree(run_dir)
@@ -71,7 +99,9 @@ run_dir.mkdir(parents=True)
     'mode': mode, 'seed': seed, 'pool': pool, 'num_to_run': num_to_run, 'num_initial': num_initial,
     'retrain_every': retrain_every, 'infer_every': infer_every, 'workers': workers,
     'ensemble_size': ensemble_size, 'epochs': epochs, 'time_scale': time_scale,
-    'learning_rate': learning_rate, 'replay_size': replay_size,
+    'learning_rate': learning_rate, 'replay_size': replay_size, 'retrain_from_scratch': retrain_from_scratch,
+    'policy': policy, 'loss_threshold': loss_threshold, 'consecutive_to_freeze': consecutive_to_freeze,
+    'probe_initial': probe_initial, 'probe_backoff': probe_backoff, 'probe_max': probe_max,
 }, indent=2))
 
 
@@ -91,7 +121,7 @@ recipe = RedoxEnergy(1, energy_config='mopac_pm7', solvent='acn')
 
 # Ensemble of MPNNs. Separate model objects so warm-started members stay independent
 models = [make_simple_network(atom_features=64, message_steps=4, output_layers=[128, 64]) for _ in range(ensemble_size)]
-scorer = NFPScorer(retrain_from_scratch=not incremental)
+scorer = NFPScorer(retrain_from_scratch=retrain_from_scratch)
 
 solution = SingleFidelityActiveLearning(
     starter=SeededRandomStarter(seed),
@@ -107,10 +137,19 @@ solution = SingleFidelityActiveLearning(
 )
 
 # One pool of workers for all tasks
+# Parsl renamed HighThroughputExecutor's per-node worker count at some point; support either name
+_workers_kwarg = ('max_workers_per_node' if 'max_workers_per_node' in inspect.signature(HighThroughputExecutor.__init__).parameters
+                  else 'max_workers')
 config = Config(
-    executors=[HighThroughputExecutor(label='htex', max_workers_per_node=workers, cpu_affinity='none')],
+    executors=[HighThroughputExecutor(label='htex', cpu_affinity='none', **{_workers_kwarg: workers})],
     run_dir=str(run_dir / 'parsl-logs'),
 )
+
+thinker_options = dict(num_workers=workers, retrain_every=retrain_every, infer_every=infer_every, incremental=incremental,
+                      replay_size=replay_size, replay_seed=seed)
+if policy == 'probe_backoff':
+    thinker_options.update(loss_threshold=loss_threshold, consecutive_to_freeze=consecutive_to_freeze,
+                           probe_initial=probe_initial, probe_backoff=probe_backoff, probe_max=probe_max)
 
 spec = ExaMolSpecification(
     database=run_dir / 'database.json',
@@ -118,9 +157,8 @@ spec = ExaMolSpecification(
     search_space=[pool_dir / 'search-space.smi'],
     solution=solution,
     simulator=ReplaySimulator(pool_dir / 'results.jsonl', time_scale=time_scale),
-    thinker=IncrementalThinker,
-    thinker_options=dict(num_workers=workers, retrain_every=retrain_every, infer_every=infer_every, incremental=incremental,
-                         replay_size=replay_size, replay_seed=seed),
+    thinker=ProbeBackoffThinker if policy == 'probe_backoff' else IncrementalThinker,
+    thinker_options=thinker_options,
     compute_config=config,
     proxystore=Store(name='file', connector=FileConnector(store_dir=str(run_dir / 'proxystore')), metrics=True),  # Keeps large messages out of the pipes
     run_dir=run_dir,

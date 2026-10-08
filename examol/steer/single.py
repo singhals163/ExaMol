@@ -122,6 +122,11 @@ class SingleStepThinker(MoleculeThinker):
         self.start_inference: Event = Event()
         self.start_training: Event = Event()
 
+        # Training history from the most recent call to `retrain`, one entry per model, keyed by recipe id.
+        #  Populated for subclasses that adapt behavior based on how well training converged (e.g., adaptive
+        #  retraining schedules). Each entry is the Keras ``history.history`` dict for one ensemble member.
+        self.last_train_history: dict[int, list[dict]] = {}
+
     @property
     def num_models(self) -> int:
         """Number of models being trained by this class"""
@@ -276,6 +281,7 @@ class SingleStepThinker(MoleculeThinker):
                 self.logger.info(f'Too few to entries to train {recipe.name}. Waiting for {self.solution.minimum_training_size}. Have {train_size}')
                 return
 
+        self.last_train_history = {}
         for recipe_id, recipe in enumerate(self.recipes):
             # Get the training set
             train_set = self._get_training_set(recipe)
@@ -313,6 +319,8 @@ class SingleStepThinker(MoleculeThinker):
                 # Forces resolution. Needed to avoid `submit_inference` from making a proxy of `model_msg`, which can happen if it is not resolved
                 #  by `scorer.update` and is a problem because the proxy for `model_msg` can be evicted while other processes need it
                 model_msg = extract(model_msg)
+            if isinstance(model_msg, tuple) and len(model_msg) > 1 and isinstance(model_msg[1], dict):
+                self.last_train_history.setdefault(recipe_id, []).append(model_msg[1])
             self.models[recipe_id][model_id] = self.scorer.update(self.models[recipe_id][model_id], model_msg)
             self.logger.info(f'Updated model {i + 1}/{self.num_models}. Recipe id={recipe_id}. Model id={model_id}')
 

@@ -55,6 +55,12 @@ class IncrementalThinker(SingleStepThinker):
         self._dispatched: set[str] = set()  # SMILES of molecules which have been sent to simulation
         self._predictions_dir = Path(self.run_dir) / 'predictions'
         self._predictions_dir.mkdir(parents=True, exist_ok=True)
+        self.last_val_loss: float | None = None  # Best validation loss from the most recent training round, averaged over the ensemble
+
+    def _compute_val_loss(self) -> float | None:
+        """Average the best (minimum) validation loss each ensemble member reached this round, across recipes and models"""
+        per_model = [min(h['val_loss']) for histories in self.last_train_history.values() for h in histories if 'val_loss' in h]
+        return float(np.mean(per_model)) if per_model else None
 
     def _get_training_set(self, recipe: PropertyRecipe) -> list[MoleculeRecord]:
         full_set = super()._get_training_set(recipe)
@@ -73,8 +79,10 @@ class IncrementalThinker(SingleStepThinker):
         output = super().get_additional_training_information(train_set, recipe)
         if self.incremental:
             # Fit the output scaling only on the first round. Afterward, each round sees only a (biased) batch of new
-            #  data, and re-fitting the scale to that batch would shift predictions for every molecule
-            output['reset_scale'] = len(self._trained_keys) == 0
+            #  data, and re-fitting the scale to that batch would shift predictions for every molecule.
+            # Exception: a scorer that always retrains from scratch has no warm-started weights to preserve a
+            #  previous scale from, so it must be refit every round.
+            output['reset_scale'] = len(self._trained_keys) == 0 or getattr(self.scorer, 'retrain_from_scratch', False)
         return output
 
     def _count_new(self) -> int:
@@ -111,6 +119,7 @@ class IncrementalThinker(SingleStepThinker):
         finally:
             self._training_active = False
         self._completed_at_last_inference = self.completed  # Training ends by running inference
+        self.last_val_loss = self._compute_val_loss()
 
         # Log the training round
         n_used = len(self._pending_keys - self._trained_keys) if self.incremental and len(self._trained_keys) > 0 else len(self._pending_keys)
@@ -124,6 +133,7 @@ class IncrementalThinker(SingleStepThinker):
                 'num_new': n_new,
                 'num_replayed': self._num_replayed,
                 'incremental': self.incremental,
+                'val_loss': self.last_val_loss,
                 'trained_keys': (sorted(self._pending_keys - self._trained_keys) if self.incremental and len(self._trained_keys) > 0
                                  else sorted(self._pending_keys)),
             }), file=fp)
